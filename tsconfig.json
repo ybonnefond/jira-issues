@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "sourceMap": true,
+    "incremental": true,
+    "declaration": true,
+    "allowJs": false,
+    "outDir": "dist",
+    "rootDir": "./",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@common": ["./src/modules/common"],
+      "@internal-bus": ["./src/modules/common/internal-bus"],
+      "@test": ["./test"]
+    },
+    "typeRoots": ["node_modules/@types"],
+    "allowSyntheticDefaultImports": true,
+    "preserveSymlinks": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "lib": ["ESNext.AsyncIterable", "ES2015.Iterable", "es2022.error"]
+  },
+  "include": ["src/**/*", "test/**/*", "tsconfig.json"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}
