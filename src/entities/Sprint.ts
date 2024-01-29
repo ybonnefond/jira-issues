@@ -48,4 +48,9 @@ export class Sprint {
       return this.props.name; // Return the original string if no match is found
     }
   }
+
+  public isActualSprint() {
+    const name = this.getSprintName();
+    return name.startsWith('Sprint ');
+  }
 }

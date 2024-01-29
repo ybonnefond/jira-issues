@@ -1,5 +1,21 @@
-export enum CustomFields {
+export enum Fields {
   SPRINTS = 'customfield_10021',
   ESTIMATION = 'customfield_10016',
   STATUS = 'status',
+  KEY = 'key',
+  SUMMARY = 'summary',
+  CREATOR = 'creator',
+  REPORTER = 'reporter',
+  ISSUE_TYPE = 'issuetype',
+  RESOLUTION_DATE = 'resolutiondate',
+  CREATED = 'created',
+  AGGREGATE_TIME_SPENT = 'aggregatetimespent',
+  ASSIGNEE = 'assignee',
+  PRIORITY = 'priority',
+  RESOLUTION = 'resolution',
+  PARENT = 'parent',
+  STATUS_CATEGORY_CHANGEDATE = 'statuscategorychangedate',
+  SUPPORT_ROOT_CAUSE = 'customfield_10035',
+  SUPPORT_DISCOVERED_BY = 'customfield_10252',
+  SUPPORT_RESOLUTION_TYPE = 'customfield_10253',
 }

@@ -3,7 +3,7 @@ import { JiraSprintDto, toSprint } from './JiraSprintDto';
 import { JiraIssueChangelogDto, toIssueChangelog } from './JiraIssueChangelogDto';
 import { Configuration } from '../Configuration';
 import { JiraIssueDto, toIssue } from './JiraIssueDto';
-import { CustomFields } from './CustomFields';
+import { Fields } from './Fields';
 import { Sprint } from '../entities/Sprint';
 import { Issue } from '../entities/Issue';
 import { IssueChangelog } from '../entities/IssueChangelog';
@@ -45,31 +45,36 @@ export class JiraApi {
         jql: jql,
         startAt,
         maxResults: Math.min(maxResults, MAX_RESULTS),
-        fields: [
-          'key',
-          'status',
-          'summary',
-          'creator',
-          'reporter',
-          'issuetype',
-          'resolutiondate',
-          'created',
-          'aggregatetimespent',
-          'assignee',
-          'priority',
-          'resolution',
-          'parent',
-          'statuscategorychangedate',
-          // Sprints
-          CustomFields.SPRINTS,
-          // Estimation
-          CustomFields.ESTIMATION,
-        ],
-        // fields: ["*all"],
+        fields: this.getIssueFields(),
+        // fields: ['*all'],
       },
     });
 
     return response.data.issues.map((issue) => toIssue(issue, this.configuration.jira.origin));
+  }
+
+  private getIssueFields() {
+    return [
+      Fields.KEY,
+      Fields.STATUS,
+      Fields.SUMMARY,
+      Fields.CREATOR,
+      Fields.REPORTER,
+      Fields.ISSUE_TYPE,
+      Fields.RESOLUTION_DATE,
+      Fields.CREATED,
+      Fields.AGGREGATE_TIME_SPENT,
+      Fields.ASSIGNEE,
+      Fields.PRIORITY,
+      Fields.RESOLUTION,
+      Fields.PARENT,
+      Fields.STATUS_CATEGORY_CHANGEDATE,
+      Fields.SPRINTS,
+      Fields.ESTIMATION,
+      Fields.SUPPORT_ROOT_CAUSE,
+      Fields.SUPPORT_DISCOVERED_BY,
+      Fields.SUPPORT_RESOLUTION_TYPE,
+    ];
   }
 
   public async listSprints({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Sprint[]> {
@@ -104,5 +109,35 @@ export class JiraApi {
     });
 
     return response.data.values.map(toIssueChangelog);
+  }
+
+  public async getIssue(issueIdOrKey: string | number) {
+    const response = await this.axios.request<JiraIssueDto>({
+      method: 'GET',
+      url: `/rest/api/3/issue/${issueIdOrKey}`,
+      params: {
+        fields: this.getIssueFields().join(','),
+      },
+    });
+
+    return toIssue(response.data, this.configuration.jira.origin);
+  }
+
+  public async findFields() {
+    const response = await this.axios.request<{ id: string; name: string; key: string }[]>({
+      method: 'GET',
+      url: `/rest/api/3/field`,
+    });
+
+    if (response.status !== 200) {
+      console.error(response.data);
+      throw new Error(`Failed to fetch fields: ${response.status} ${response.statusText}`);
+    }
+
+    return response.data.map((field) => ({
+      id: field.id,
+      name: field.name,
+      key: field.key,
+    }));
   }
 }

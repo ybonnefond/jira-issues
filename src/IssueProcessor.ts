@@ -26,6 +26,7 @@ export class IssueProcessor {
 
     await this.writer.begin();
     let total = 0;
+    const orphans: { issue: Issue; sprint: string }[] = [];
 
     await batch({
       batchSize: this.configuration.jira.batchSize,
@@ -41,13 +42,25 @@ export class IssueProcessor {
 
           issue.setChangelogs(changelogs);
 
+          if (!issue.hasAssignee()) {
+            const parentKey = issue.getParentKey();
+            if (parentKey) {
+              const parent = await this.jira.getIssue(parentKey);
+              issue.updateParent(parent);
+            }
+          }
+
           const issueSprints = issue.getAllSprintIds();
 
           for (const sprintId of issueSprints) {
             const sprint = sprints.get(sprintId);
             if (sprint instanceof Sprint) {
-              this.writer.write(issue.toRow(sprint));
+              if (sprint.isActualSprint()) {
+                // filter issues in backlog or other temp sprints
+                this.writer.write(issue.toRow(sprint));
+              }
             } else {
+              orphans.push({ issue, sprint: sprint ?? '' });
               console.warn('Sprint not found for issue', { issueKey: issue.getKey(), sprintId: sprintId });
             }
           }
@@ -55,10 +68,32 @@ export class IssueProcessor {
       },
     });
 
+    this.printOrphan(orphans);
+
     console.log(`Total: ${total} issues processed`);
 
     this.writer.end();
     console.log('');
+  }
+
+  private printOrphan(orphans: { issue: Issue; sprint: string }[]) {
+    orphans.sort((a, b) => {
+      if (a.sprint !== b.sprint) {
+        return a.sprint.localeCompare(b.sprint);
+      }
+
+      return a.issue.getKey().localeCompare(b.issue.getKey());
+    });
+
+    console.log('# Orphans:');
+    let currentSprint = null;
+    for (const { issue, sprint } of orphans) {
+      if (currentSprint !== sprint) {
+        console.log(`## SprintId ${sprint}`);
+        currentSprint = sprint;
+      }
+      console.warn(` - [${issue.getKey()}] ${issue.getLink()}`);
+    }
   }
 
   private async loadSprints(): Promise<Map<number, Sprint>> {

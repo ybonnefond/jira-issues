@@ -1,5 +1,7 @@
 import { Sprint } from './Sprint';
 import { IssueChangelog } from './IssueChangelog';
+import { Statuses } from '../jira/Statuses';
+import { format } from 'date-fns';
 
 export type IssueProps = {
   id: number;
@@ -16,6 +18,18 @@ export type IssueProps = {
     status: string;
     priority: string;
   };
+  parent: null | {
+    id: number;
+    key: string;
+    summary: string;
+    status: string;
+    priority: string;
+    type: string;
+    assignee: null | {
+      name: string;
+      email: string | null;
+    };
+  };
   reporter: {
     name: string;
     email: string | null;
@@ -30,6 +44,8 @@ export type IssueProps = {
   sprints: Array<Sprint>;
   estimation: number;
   totalTimeSpent: number;
+  supportDiscoveredBy: string;
+  supportResolutionType: string;
 };
 export class Issue {
   private changelogs: IssueChangelog[] = [];
@@ -139,6 +155,96 @@ export class Issue {
     return lastChangelog.getTo().map((sprintId) => parseInt(sprintId));
   }
 
+  public getStartedAt(): Date | null {
+    let last: Date | null = null;
+    for (const changelog of this.changelogs) {
+      if (changelog.isStatusChangelog() && changelog.getFrom()[0] === Statuses.TODO && changelog.getTo()[0] === Statuses.IN_PROGRESS && (last === null || last < changelog.getChangedAt())) {
+        last = changelog.getChangedAt();
+      }
+    }
+
+    return last;
+  }
+
+  public getWorkDuration() {
+    const startedAt = this.getStartedAt();
+    const resolvedAt = this.props.resolvedAt;
+
+    if (startedAt instanceof Date && resolvedAt instanceof Date) {
+      return resolvedAt.getTime() - startedAt.getTime();
+    }
+
+    return null;
+  }
+
+  public getWorkDurationHours() {
+    const duration = this.getWorkDuration();
+
+    if (duration === null) {
+      return null;
+    }
+
+    const durationHours = duration / 1000 / 60 / 60;
+    return Math.round(durationHours * 100) / 100;
+  }
+
+  public getIssueType() {
+    switch (this.props.type) {
+      case 'Sous-tâche':
+        return 'subtask';
+      default:
+        return this.props.type;
+    }
+  }
+
+  public hasAssignee() {
+    return this.props.assignee !== null;
+  }
+
+  public getParentKey() {
+    return this.props.parent?.key ?? null;
+  }
+
+  public getId() {
+    return this.props.id;
+  }
+
+  public getSummary() {
+    return this.props.summary;
+  }
+
+  public getStatus() {
+    return this.props.status;
+  }
+
+  public getPriority() {
+    return this.props.priority;
+  }
+
+  public getAssignee() {
+    return this.props.assignee;
+  }
+
+  public getType() {
+    return this.props.type;
+  }
+
+  public updateParent(parent: Issue) {
+    this.props.parent = {
+      id: parent.getId(),
+      key: parent.getKey(),
+      summary: parent.getSummary(),
+      status: parent.getStatus(),
+      priority: parent.getPriority(),
+      type: parent.getType(),
+      assignee: parent.getAssignee(),
+    };
+  }
+
+  public getLink() {
+    return this.props.link;
+  }
+
   public toRow(sprint: Sprint): Record<string, string | number | boolean> {
     const estimation = this.getEstimation();
 
@@ -147,26 +253,36 @@ export class Issue {
 
     const isDelivered = this.isinSprintDelivery(sprint);
     const sprintDeliveredStoryPoint = isDelivered ? estimation : 0;
+    const sprintName = sprint.getSprintName();
+    const isActualSprint = sprint.isActualSprint();
+
+    const toDate = (value: Date | null | undefined) => {
+      if (!value) {
+        return '';
+      }
+
+      return format(value, 'yyyy-MM-dd');
+    };
 
     return {
       // ⚠️Do not change the order of the keys, this will break the pivot table & charts ⚠️
       id: this.props.id,
-      type: this.props.type,
+      type: this.getIssueType(),
       key: this.props.key,
       status: this.props.status,
       summary: this.props.summary,
       estimation,
       timeSpent: this.props.totalTimeSpent,
       reporter: this.props.reporter.name,
-      assignee: this.props.assignee?.name ?? '',
+      assignee: this.props.assignee?.name ?? this.props.parent?.assignee?.name ?? '',
       createdAt: this.props.createdAt.toISOString(),
-      resolvedAt: this.props.resolvedAt?.toISOString() ?? '',
+      resolvedAt: toDate(this.props.resolvedAt),
       priority: this.props.priority,
       epicKey: this.props.epic?.key ?? '',
       epicSummary: this.props.epic?.summary ?? '',
       link: this.props.link,
       sprintId: sprint.getId(),
-      sprintName: sprint.getSprintName(),
+      sprintName,
       sprintStartedAt: sprint.getStartedAt()?.toISOString() ?? '',
       sprintEndedAt: sprint.getEndedAt()?.toISOString() ?? '',
       sprintCompletedAt: sprint.getCompletedAt()?.toISOString() ?? '',
@@ -175,6 +291,13 @@ export class Issue {
       sprintCommittedStoryPoints,
       sprintDeliveredStoryPoint,
       sprintGoal: sprint.getGoal(),
+      startedAt: this.getStartedAt()?.toISOString() ?? '',
+      workDurationMs: isDelivered ? this.getWorkDuration() ?? '' : '',
+      workDurationHrs: isDelivered ? this.getWorkDurationHours() ?? '' : '',
+      weekResolvedAt: this.props.resolvedAt ? format(this.props.resolvedAt, 'yyyy-ww') : '',
+      supportDiscoveredBy: this.props.supportDiscoveredBy,
+      supportResolutionType: this.props.supportResolutionType,
+      isActualSprint,
     };
   }
 }

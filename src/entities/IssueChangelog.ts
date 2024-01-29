@@ -1,4 +1,4 @@
-import { CustomFields } from "../jira/CustomFields";
+import { Fields } from '../jira/Fields';
 
 export type IssueChangelogProps = {
   changedAt: Date;
@@ -12,11 +12,19 @@ export class IssueChangelog {
   constructor(private readonly props: IssueChangelogProps) {}
 
   public isSprintChangeLog() {
-    return this.props.fieldId === CustomFields.SPRINTS;
+    return this.props.fieldId === Fields.SPRINTS;
+  }
+
+  public isStatusChangelog() {
+    return this.props.fieldId === Fields.STATUS;
+  }
+
+  public getFrom(): string[] {
+    return this.props.from.split(', ');
   }
 
   public getTo(): string[] {
-    return this.props.to.split(", ");
+    return this.props.to.split(', ');
   }
 
   public getChangedAt() {

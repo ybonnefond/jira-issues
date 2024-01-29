@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node --require tsconfig-paths/register --require ts-node/register src/main.ts",
+    "fields": "node --require tsconfig-paths/register --require ts-node/register src/fields.ts",
     "debug": "node --inspect-brk --require tsconfig-paths/register --require ts-node/register src/main.ts"
   },
   "dependencies": {
     "@fast-csv/format": "^4.3.5",
     "axios": "^1.4.0",
     "axios-retry": "^3.7.0",
+    "date-fns": "^3.2.0",
     "dotenv": "^16.3.1",
     "env-var": "^7.3.1",
     "tsconfig-paths": "4.2.0"
