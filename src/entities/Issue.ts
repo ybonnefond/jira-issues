@@ -294,7 +294,7 @@ export class Issue {
       startedAt: this.getStartedAt()?.toISOString() ?? '',
       workDurationMs: isDelivered ? this.getWorkDuration() ?? '' : '',
       workDurationHrs: isDelivered ? this.getWorkDurationHours() ?? '' : '',
-      weekResolvedAt: this.props.resolvedAt ? format(this.props.resolvedAt, 'yyyy-ww') : '',
+      weekResolvedAt: this.props.resolvedAt ? 'W' + format(this.props.resolvedAt, 'yyyy-ww') : '',
       supportDiscoveredBy: this.props.supportDiscoveredBy,
       supportResolutionType: this.props.supportResolutionType,
       isActualSprint,
