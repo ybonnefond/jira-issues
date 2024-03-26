@@ -46,6 +46,7 @@ export type IssueProps = {
   totalTimeSpent: number;
   supportDiscoveredBy: string;
   supportResolutionType: string;
+  product: string | null;
 };
 export class Issue {
   private changelogs: IssueChangelog[] = [];
@@ -166,6 +167,39 @@ export class Issue {
     return last;
   }
 
+  private startedInSprint(sprint: Sprint): boolean {
+    const sprintStartedAt = sprint.getStartedAt();
+    const sprintEndedAt = sprint.getEndedAt();
+    const startedAt = this.getStartedAt();
+    if (sprintStartedAt === null || sprintEndedAt === null || startedAt === null) {
+      return false;
+    }
+
+    return startedAt >= sprintStartedAt && startedAt <= sprintEndedAt;
+  }
+
+  private resolvedInSprint(sprint: Sprint): boolean {
+    const sprintStartedAt = sprint.getStartedAt();
+    const sprintEndedAt = sprint.getEndedAt();
+    const resolvedAt = this.props.resolvedAt;
+    if (sprintStartedAt === null || sprintEndedAt === null || resolvedAt === null) {
+      return false;
+    }
+
+    return resolvedAt >= sprintStartedAt && resolvedAt <= sprintEndedAt;
+  }
+
+  private createdInSprint(sprint: Sprint): boolean {
+    const sprintStartedAt = sprint.getStartedAt();
+    const sprintEndedAt = sprint.getEndedAt();
+    const createdAt = this.props.createdAt;
+    if (sprintStartedAt === null || sprintEndedAt === null || createdAt === null) {
+      return false;
+    }
+
+    return createdAt >= sprintStartedAt && createdAt <= sprintEndedAt;
+  }
+
   public getWorkDuration() {
     const startedAt = this.getStartedAt();
     const resolvedAt = this.props.resolvedAt;
@@ -255,6 +289,9 @@ export class Issue {
     const sprintDeliveredStoryPoint = isDelivered ? estimation : 0;
     const sprintName = sprint.getSprintName();
     const isActualSprint = sprint.isActualSprint();
+    const startedInSprint = this.startedInSprint(sprint);
+    const resolvedInSprint = this.resolvedInSprint(sprint);
+    const createdInSprint = this.createdInSprint(sprint);
 
     const toDate = (value: Date | null | undefined) => {
       if (!value) {
@@ -298,6 +335,10 @@ export class Issue {
       supportDiscoveredBy: this.props.supportDiscoveredBy,
       supportResolutionType: this.props.supportResolutionType,
       isActualSprint,
+      startedInSprint: startedInSprint ? 'YES' : '',
+      resolvedInSprint: resolvedInSprint ? 'YES' : '',
+      createdInSprint: createdInSprint ? 'YES' : '',
+      product: this.props.product ?? '',
     };
   }
 }

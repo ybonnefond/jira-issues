@@ -84,6 +84,7 @@ export interface JiraIssueDto {
     aggregatetimespent: number;
     [Fields.SUPPORT_DISCOVERED_BY]: JiraIssueCustomField | null | undefined;
     [Fields.SUPPORT_RESOLUTION_TYPE]: JiraIssueCustomField | null | undefined;
+    [Fields.PRODUCT]: JiraIssueCustomField | null | undefined;
   };
 }
 
@@ -111,6 +112,7 @@ export function toIssue(jira: JiraIssueDto, origin: string): Issue {
     sprints: Array.isArray(jira.fields[Fields.SPRINTS]) ? jira.fields[Fields.SPRINTS].map(toSprint) : [],
     supportDiscoveredBy: findSupportDiscoveredBy(jira),
     supportResolutionType: findSupportResolutionType(jira),
+    product: getCustomFieldValue(jira.fields[Fields.PRODUCT]),
   };
 
   if (jira.fields.assignee) {
@@ -155,7 +157,7 @@ function findSupportResolutionType(jira: JiraIssueDto): string {
   return getCustomFieldValue(jira.fields[Fields.SUPPORT_RESOLUTION_TYPE]) ?? '';
 }
 
-function getCustomFieldValue(field: JiraIssueCustomField | null | undefined) {
+function getCustomFieldValue(field: JiraIssueCustomField | null | undefined): string | null {
   if (field === null || typeof field === 'undefined') {
     return null;
   }
