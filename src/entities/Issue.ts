@@ -50,7 +50,7 @@ export type IssueProps = {
 };
 export class Issue {
   private changelogs: IssueChangelog[] = [];
-  constructor(private readonly props: IssueProps) {}
+  constructor(private readonly props: IssueProps, private readonly options: { deliveredStatuses: string[] }) {}
 
   public getKey() {
     return this.props.key;
@@ -101,7 +101,8 @@ export class Issue {
 
     const sprintStartedAt = sprint.getStartedAt() as Date; // if endedAt is set, startedAt is also set
 
-    return sprintStartedAt <= resolvedAt && resolvedAt <= endDate;
+    const isDone = this.options.deliveredStatuses.includes(this.props.status.toLowerCase());
+    return isDone && sprintStartedAt <= resolvedAt && resolvedAt <= endDate;
   }
 
   public isInSprintCommitment(sprint: Sprint): boolean {
@@ -285,6 +286,7 @@ export class Issue {
     const isCommitted = this.isInSprintCommitment(sprint);
     const sprintCommittedStoryPoints = isCommitted ? estimation : 0;
 
+    // Use only done status as
     const isDelivered = this.isinSprintDelivery(sprint);
     const sprintDeliveredStoryPoint = isDelivered ? estimation : 0;
     const sprintName = sprint.getSprintName();

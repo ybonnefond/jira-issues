@@ -7,6 +7,7 @@ import * as envVar from 'env-var';
 export class Configuration {
   public readonly root: string;
   public readonly output: string;
+  public deliveredStatuses: string[];
 
   public readonly jira: {
     origin: string;
@@ -30,6 +31,9 @@ export class Configuration {
     const projectKey = env.get('JIRA_PROJECT_KEY').required().asString();
     const resolvedIssuesFrom = env.get('JIRA_RESOLVED_ISSUES_FROM').required().asString();
     const issueTypes = env.get('JIRA_ISSUE_TYPES').required().asString();
+    const deliveredStatuses = env.get('JIRA_DELIVERED_STATUSES').required().asString();
+
+    this.deliveredStatuses = deliveredStatuses.split(',').map((status) => status.toLowerCase());
 
     this.jira = {
       origin: env.get('JIRA_ORIGIN').default('https://voodooio.atlassian.net').asString(),

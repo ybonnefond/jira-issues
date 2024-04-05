@@ -50,7 +50,12 @@ export class JiraApi {
       },
     });
 
-    return response.data.issues.map((issue) => toIssue(issue, this.configuration.jira.origin));
+    return response.data.issues.map((issue) =>
+      toIssue(issue, {
+        origin: this.configuration.jira.origin,
+        deliveredStatuses: this.configuration.deliveredStatuses,
+      }),
+    );
   }
 
   private getIssueFields() {
@@ -121,7 +126,10 @@ export class JiraApi {
       },
     });
 
-    return toIssue(response.data, this.configuration.jira.origin);
+    return toIssue(response.data, {
+      origin: this.configuration.jira.origin,
+      deliveredStatuses: this.configuration.deliveredStatuses,
+    });
   }
 
   public async findFields() {

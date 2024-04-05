@@ -88,11 +88,11 @@ export interface JiraIssueDto {
   };
 }
 
-export function toIssue(jira: JiraIssueDto, origin: string): Issue {
+export function toIssue(jira: JiraIssueDto, options: { origin: string; deliveredStatuses: string[] }): Issue {
   const issueProps: IssueProps = {
     id: jira.id,
     key: jira.key,
-    link: `${origin}/browse/${jira.key}`,
+    link: `${options.origin}/browse/${jira.key}`,
     summary: jira.fields.summary,
     status: jira.fields.status.name,
     assignee: null,
@@ -146,7 +146,7 @@ export function toIssue(jira: JiraIssueDto, origin: string): Issue {
     }
   }
 
-  return new Issue(issueProps);
+  return new Issue(issueProps, { deliveredStatuses: options.deliveredStatuses });
 }
 
 function findSupportDiscoveredBy(jira: JiraIssueDto): string {
