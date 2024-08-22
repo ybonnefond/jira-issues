@@ -36,7 +36,7 @@ export class JiraApi {
   }
 
   public async listIssue({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
-    const jql = `project = ${this.configuration.jira.projectKey} AND updated >= ${this.configuration.jira.resolvedIssuesFrom} AND issuetype in (${this.configuration.jira.issueTypes}) order by created DESC`;
+    const jql = `project IN (${this.configuration.jira.projectKey.split(',')}) AND updated >= ${this.configuration.jira.resolvedIssuesFrom} AND issuetype in (${this.configuration.jira.issueTypes}) order by created DESC`;
 
     const response = await this.axios.request<{ issues: JiraIssueDto[] }>({
       method: 'POST',
@@ -84,9 +84,19 @@ export class JiraApi {
   }
 
   public async listSprints({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Sprint[]> {
+    return (
+      await Promise.all(
+        this.configuration.jira.boardIds.map(async (boardId) => {
+          return this.listSprintsOfBoard({ startAt, maxResults, boardId });
+        }),
+      )
+    ).flat();
+  }
+
+  public async listSprintsOfBoard({ startAt, maxResults, boardId }: { startAt: number; maxResults: number; boardId: string }): Promise<Sprint[]> {
     const response = await this.axios.request<{ values: JiraSprintDto[] }>({
       method: 'GET',
-      url: `/rest/agile/1.0/board/${this.configuration.jira.boardId}/sprint`,
+      url: `/rest/agile/1.0/board/${boardId}/sprint`,
       params: {
         startAt,
         maxResults: Math.min(maxResults, MAX_RESULTS),
@@ -102,6 +112,7 @@ export class JiraApi {
       return startDate >= new Date(this.configuration.jira.sprintStartedAtFrom);
     });
   }
+
   public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<IssueChangelog[]> {
     const response = await this.axios.request<{
       values: JiraIssueChangelogDto[];

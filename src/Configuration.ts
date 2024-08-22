@@ -13,7 +13,7 @@ export class Configuration {
     origin: string;
     username: string;
     apiKey: string;
-    boardId: number;
+    boardIds: string[];
     projectKey: string;
     resolvedIssuesFrom: string;
     sprintStartedAtFrom: string;
@@ -39,7 +39,7 @@ export class Configuration {
       origin: env.get('JIRA_ORIGIN').default('https://voodooio.atlassian.net').asString(),
       username: env.get('JIRA_USERNAME').required().asString(),
       apiKey: env.get('JIRA_API_KEY').required().asString(),
-      boardId: env.get('JIRA_BOARD_ID').required().asInt(),
+      boardIds: env.get('JIRA_BOARD_IDS').required().asString().split(','),
       projectKey,
       resolvedIssuesFrom,
       issueTypes,
