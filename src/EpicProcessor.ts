@@ -7,7 +7,7 @@ import * as console from 'console';
 import { Configuration } from './Configuration';
 import chalk from 'chalk';
 
-export class IssueProcessor {
+export class EpicProcessor {
   private readonly jira: JiraApi;
   private readonly writer: CsvWriter;
   private readonly configuration: Configuration;
@@ -23,12 +23,13 @@ export class IssueProcessor {
 
     await this.writer.begin();
     let total = 0;
+    const epics: Map<string, Issue> = new Map();
 
     await batch({
       batchSize: this.configuration.jira.batchSize,
       load: async ({ startAt, batchSize }) => {
-        console.log(`Loading issue batch [${chalk.bold.white(startAt)}, ${chalk.bold.white(startAt + batchSize)}]`);
-        return this.jira.listIssue({ startAt, maxResults: batchSize });
+        console.log(`Loading Epic batch [${chalk.bold.white(startAt)}, ${chalk.bold.white(startAt + batchSize)}]`);
+        return this.jira.listEpics({ startAt, maxResults: batchSize });
       },
       process: async (batch: Issue[]) => {
         total += batch.length;
@@ -38,14 +39,7 @@ export class IssueProcessor {
 
           issue.setChangelogs(changelogs);
 
-          if (!issue.hasAssignee()) {
-            const parentKey = issue.getParentKey();
-            if (parentKey) {
-              const parent = await this.jira.getIssue(parentKey);
-              issue.updateParent(parent);
-            }
-          }
-
+          epics.set(issue.getKey(), issue);
           this.writer.write(issue.toRow());
         }
 
@@ -53,7 +47,9 @@ export class IssueProcessor {
       },
     });
 
-    console.log(`Total: ${total} issues processed`);
+    console.log('Epics loaded');
+
+    console.log(`Total: ${total} epics processed`);
 
     this.writer.end();
     console.log('');
@@ -61,7 +57,7 @@ export class IssueProcessor {
 
   private async loadChangelogs(issueIdOrKey: string | number): Promise<IssueChangelog[]> {
     let changelogs: IssueChangelog[] = [];
-    console.log(` - Loading changelogs for issue ${chalk.cyan(issueIdOrKey)}`);
+    console.log(` - Loading changelogs for epic ${chalk.cyan(issueIdOrKey)}`);
 
     await batch({
       batchSize: this.configuration.jira.batchSize,

@@ -1,13 +1,18 @@
-import fs from 'fs';
 import { join, resolve } from 'path';
 
 import dotenv from 'dotenv';
 import * as envVar from 'env-var';
+import { Sprints } from './Sprints';
+import { parse } from 'date-fns';
+import { Columns } from './Columns';
 
 export class Configuration {
   public readonly root: string;
   public readonly output: string;
   public deliveredStatuses: string[];
+  public sprints: Sprints;
+  public columns: Columns[];
+  public supportProductDefault: string;
 
   public readonly jira: {
     origin: string;
@@ -19,14 +24,26 @@ export class Configuration {
     sprintStartedAtFrom: string;
     issueTypes: string;
     batchSize: number;
-    issueJql: string;
   };
+
   constructor(envValues: NodeJS.ProcessEnv = process.env) {
     const env = envVar.from(envValues);
 
     this.root = env.get('ROOT').required().asString();
     const output = env.get('OUTPUT').default('output').asString();
     this.output = output[0] === '/' ? output : join(this.root, output);
+    this.columns = env.get('OUTPUT_COLUMNS').required().asArray(',') as Columns[];
+    this.supportProductDefault = env.get('SUPPORT_PRODUCT_DEFAULT').required().asString();
+
+    const sprintDuration = env.get('SPRINT_DURATION').required().asIntPositive();
+    const sprintNumber = env.get('SPRINT_NUMBER').required().asIntPositive();
+    const sprintFirstDay = env.get('SPRINT_FIRST_DAY').required().asString();
+
+    this.sprints = Sprints.fromAnySprint({
+      sprintDuration,
+      sprintNumber,
+      sprintFirstDay: parse(sprintFirstDay, 'yyyy-MM-dd', new Date()),
+    });
 
     const projectKey = env.get('JIRA_PROJECT_KEY').required().asString();
     const resolvedIssuesFrom = env.get('JIRA_RESOLVED_ISSUES_FROM').required().asString();
@@ -45,7 +62,6 @@ export class Configuration {
       issueTypes,
       sprintStartedAtFrom: env.get('JIRA_SPRINT_START_DATE').required().asString(),
       batchSize: 100,
-      issueJql: `project = ${projectKey} AND updated >= ${resolvedIssuesFrom} AND issuetype in (${issueTypes}) order by created DESC`,
     };
   }
 

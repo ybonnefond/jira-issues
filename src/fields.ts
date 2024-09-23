@@ -1,7 +1,6 @@
 import { JiraApi } from './jira/JiraApi';
 import { Configuration } from './Configuration';
-import { CsvWriter } from './CsvWriter';
-import { IssueProcessor } from './IssueProcessor';
+import Table from 'cli-table3';
 
 async function main() {
   const configuration = Configuration.fromEnv();
@@ -9,9 +8,17 @@ async function main() {
 
   const fields = await jira.findFields();
 
+  const table = new Table({
+    head: ['Field name', 'Jira field key'],
+    // colWidths: [200, 300],
+  });
+
   for (const field of fields) {
-    console.log(`${field.name}: ${field.key}`);
+    table.push([`\x1b[33m${field.name}\x1b[0m`, field.key]);
+    // console.log(`- \x1b[33m${field.name}\x1b[0m:\t\t\t${field.key}`);
   }
+
+  console.log(table.toString());
 }
 
 void main();

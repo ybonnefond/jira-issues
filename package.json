@@ -1,6 +1,7 @@
 {
   "name": "jira-issues",
   "version": "1.0.0",
+  "type": "commonjs",
   "scripts": {
     "start": "node --require tsconfig-paths/register --require ts-node/register src/main.ts",
     "fields": "node --require tsconfig-paths/register --require ts-node/register src/fields.ts",
@@ -8,8 +9,11 @@
   },
   "dependencies": {
     "@fast-csv/format": "^4.3.5",
+    "@swc/jest": "^0.2.36",
     "axios": "^1.4.0",
     "axios-retry": "^3.7.0",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
     "date-fns": "^3.2.0",
     "dotenv": "^16.3.1",
     "env-var": "^7.3.1",

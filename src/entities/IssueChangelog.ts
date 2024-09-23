@@ -1,12 +1,13 @@
 import { Fields } from '../jira/Fields';
+import { StringUtils } from '../StringUtils';
 
 export type IssueChangelogProps = {
   changedAt: Date;
   fieldId: string;
   from: string;
-  fromString: string;
+  fromString: string | null;
   to: string;
-  toString: string;
+  toString: string | null;
 };
 export class IssueChangelog {
   constructor(private readonly props: IssueChangelogProps) {}
@@ -23,8 +24,16 @@ export class IssueChangelog {
     return this.props.from.split(', ');
   }
 
+  public getFromStringNormalized() {
+    return StringUtils.toScreamingCase(this.props.fromString, { noSpace: true });
+  }
+
   public getTo(): string[] {
     return this.props.to.split(', ');
+  }
+
+  public getToStringNormalized() {
+    return StringUtils.toScreamingCase(this.props.toString, { noSpace: true });
   }
 
   public getChangedAt() {

@@ -5,16 +5,18 @@ import { Configuration } from './Configuration';
 
 export class CsvWriter {
   private readonly configuration: Configuration;
+  private readonly filename: string;
   private csv: CsvFormatterStream<any, any> | null = null;
 
-  constructor({ configuration }: { configuration: Configuration }) {
+  constructor({ configuration, filename }: { configuration: Configuration; filename: string }) {
     this.configuration = configuration;
+    this.filename = filename;
   }
 
   public async begin() {
     await mkdir(this.configuration.output, { recursive: true });
 
-    const output = `${this.configuration.output}/issues.csv`;
+    const output = `${this.configuration.output}/${this.filename}`;
 
     if (existsSync(output)) {
       await unlink(output);

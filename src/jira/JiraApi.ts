@@ -54,12 +54,42 @@ export class JiraApi {
       toIssue(issue, {
         origin: this.configuration.jira.origin,
         deliveredStatuses: this.configuration.deliveredStatuses,
+        sprints: this.configuration.sprints,
+        columns: this.configuration.columns,
+        supportProductDefault: this.configuration.supportProductDefault,
+      }),
+    );
+  }
+
+  public async listEpics({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
+    const jql = `project IN (${this.configuration.jira.projectKey.split(',')}) AND updated >= ${this.configuration.jira.resolvedIssuesFrom} AND issuetype in (Epic) order by created DESC`;
+
+    const response = await this.axios.request<{ issues: JiraIssueDto[] }>({
+      method: 'POST',
+      url: '/rest/api/3/search',
+      data: {
+        jql: jql,
+        startAt,
+        maxResults: Math.min(maxResults, MAX_RESULTS),
+        fields: this.getIssueFields(),
+        // fields: ['*all'],
+      },
+    });
+
+    return response.data.issues.map((issue) =>
+      toIssue(issue, {
+        origin: this.configuration.jira.origin,
+        deliveredStatuses: this.configuration.deliveredStatuses,
+        sprints: this.configuration.sprints,
+        columns: this.configuration.columns,
+        supportProductDefault: this.configuration.supportProductDefault,
       }),
     );
   }
 
   private getIssueFields() {
     return [
+      Fields.PROJECT,
       Fields.AGGREGATE_TIME_SPENT,
       Fields.ASSIGNEE,
       Fields.CREATED,
@@ -69,7 +99,13 @@ export class JiraApi {
       Fields.KEY,
       Fields.PARENT,
       Fields.PRIORITY,
-      Fields.PRODUCT,
+      Fields.PRODUCT_01,
+      Fields.PRODUCT_02,
+      Fields.PRODUCT_03,
+      Fields.PRODUCT_04,
+      Fields.PRODUCT_05,
+      Fields.PRODUCT_06,
+      Fields.PRODUCT_07,
       Fields.REPORTER,
       Fields.RESOLUTION,
       Fields.RESOLUTION_DATE,
@@ -81,36 +117,6 @@ export class JiraApi {
       Fields.SUPPORT_RESOLUTION_TYPE,
       Fields.SUPPORT_ROOT_CAUSE,
     ];
-  }
-
-  public async listSprints({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Sprint[]> {
-    return (
-      await Promise.all(
-        this.configuration.jira.boardIds.map(async (boardId) => {
-          return this.listSprintsOfBoard({ startAt, maxResults, boardId });
-        }),
-      )
-    ).flat();
-  }
-
-  public async listSprintsOfBoard({ startAt, maxResults, boardId }: { startAt: number; maxResults: number; boardId: string }): Promise<Sprint[]> {
-    const response = await this.axios.request<{ values: JiraSprintDto[] }>({
-      method: 'GET',
-      url: `/rest/agile/1.0/board/${boardId}/sprint`,
-      params: {
-        startAt,
-        maxResults: Math.min(maxResults, MAX_RESULTS),
-      },
-    });
-
-    return response.data.values.map(toSprint).filter((sprint: Sprint) => {
-      const startDate = sprint.getStartedAt();
-      if (null === startDate) {
-        return true;
-      }
-
-      return startDate >= new Date(this.configuration.jira.sprintStartedAtFrom);
-    });
   }
 
   public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<IssueChangelog[]> {
@@ -140,6 +146,9 @@ export class JiraApi {
     return toIssue(response.data, {
       origin: this.configuration.jira.origin,
       deliveredStatuses: this.configuration.deliveredStatuses,
+      sprints: this.configuration.sprints,
+      columns: this.configuration.columns,
+      supportProductDefault: this.configuration.supportProductDefault,
     });
   }
 
