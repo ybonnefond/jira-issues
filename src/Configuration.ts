@@ -5,6 +5,8 @@ import * as envVar from 'env-var';
 import { Sprints } from './Sprints';
 import { parse } from 'date-fns';
 import { Columns } from './Columns';
+import { Statuses } from './jira/Statuses';
+import { StatusMap } from './StatusMap';
 
 export class Configuration {
   public readonly root: string;
@@ -25,6 +27,8 @@ export class Configuration {
     issueTypes: string;
     batchSize: number;
   };
+
+  public readonly statusMap: StatusMap;
 
   constructor(envValues: NodeJS.ProcessEnv = process.env) {
     const env = envVar.from(envValues);
@@ -62,6 +66,13 @@ export class Configuration {
       issueTypes,
       sprintStartedAtFrom: env.get('JIRA_SPRINT_START_DATE').required().asString(),
       batchSize: 100,
+    };
+
+    this.statusMap = {
+      [Statuses.TODO]: env.get('STATUS_TODO').required().asArray(',') as string[],
+      [Statuses.IN_PROGRESS]: env.get('STATUS_IN_PROGRESS').required().asArray(',') as string[],
+      [Statuses.HOLD]: env.get('STATUS_HOLD').required().asArray(',') as string[],
+      [Statuses.QA]: env.get('STATUS_QA').required().asArray(',') as string[],
     };
   }
 

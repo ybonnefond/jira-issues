@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
+    "target": "es2022",
+    "module": "node16",
     "sourceMap": true,
     "inlineSourceMap": true,
     "incremental": true,
@@ -13,7 +13,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "baseUrl": ".",
     "paths": {
       "@common": ["./src/modules/common"],
@@ -28,7 +28,7 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "lib": ["ESNext.AsyncIterable", "ES2015.Iterable", "es2022.error"]
+    "lib": ["es2023"]
   },
   "include": ["src/**/*", "test/**/*", "tsconfig.json"],
   "ts-node": {

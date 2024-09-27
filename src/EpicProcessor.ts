@@ -2,10 +2,11 @@ import { JiraApi } from './jira/JiraApi';
 import { CsvWriter } from './CsvWriter';
 import { batch } from './batch';
 import { Issue } from './entities/Issue';
-import { IssueChangelog } from './entities/IssueChangelog';
+import { Changelog } from './entities/Changelog';
 import * as console from 'console';
 import { Configuration } from './Configuration';
 import chalk from 'chalk';
+import { Changelogs } from './entities/Changelogs';
 
 export class EpicProcessor {
   private readonly jira: JiraApi;
@@ -37,7 +38,7 @@ export class EpicProcessor {
         for (const issue of batch) {
           const changelogs = await this.loadChangelogs(issue.getKey());
 
-          issue.setChangelogs(changelogs);
+          issue.setChangelogs(new Changelogs({ changelogs, statusMap: this.configuration.statusMap, createdAt: issue.getCreatedAt() }));
 
           epics.set(issue.getKey(), issue);
           this.writer.write(issue.toRow());
@@ -55,8 +56,8 @@ export class EpicProcessor {
     console.log('');
   }
 
-  private async loadChangelogs(issueIdOrKey: string | number): Promise<IssueChangelog[]> {
-    let changelogs: IssueChangelog[] = [];
+  private async loadChangelogs(issueIdOrKey: string | number): Promise<Changelog[]> {
+    let changelogs: Changelog[] = [];
     console.log(` - Loading changelogs for epic ${chalk.cyan(issueIdOrKey)}`);
 
     await batch({
@@ -64,7 +65,7 @@ export class EpicProcessor {
       load: async ({ startAt, batchSize }) => {
         return this.jira.getIssueChangelogs(issueIdOrKey, { startAt, maxResults: batchSize });
       },
-      process: async (batch: IssueChangelog[]) => {
+      process: async (batch: Changelog[]) => {
         changelogs.push(...batch);
       },
     });

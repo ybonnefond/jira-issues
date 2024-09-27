@@ -1,10 +1,12 @@
 import { Sprint } from './Sprint';
-import { IssueChangelog } from './IssueChangelog';
+import { Changelog } from './Changelog';
 import { Statuses } from '../jira/Statuses';
 import { format, startOfDay, endOfDay, isWeekend, addDays } from 'date-fns';
 import { Columns } from '../Columns';
 import { Sprints } from '../Sprints';
 import { StringUtils } from '../StringUtils';
+import { TimeUtil, WORK_DAY_HOURS, DAY_HOURS } from '../TimeUtil';
+import { Changelogs } from './Changelogs';
 
 export type IssueProps = {
   id: number;
@@ -58,50 +60,44 @@ export type IssueProps = {
   product: string | null;
 };
 
-const ONE_HOUR = 60 * 60 * 1000;
-const SIX_HOURS = 6 * ONE_HOUR;
-const WORK_START_HOUR = 9; // 9 AM
-const WORK_END_HOUR = 18; // 6 PM
-
-// 8 hours per day, accounting for a 1-hour lunch break
-const WORK_DAY_HOURS = (WORK_END_HOUR - WORK_START_HOUR) * ONE_HOUR - ONE_HOUR;
-const DAY_HOURS = 24 * ONE_HOUR;
-
 export class Issue {
-  private changelogs: IssueChangelog[] = [];
+  private changelogs: Changelogs;
 
-  constructor(private readonly props: IssueProps, private readonly options: { deliveredStatuses: string[]; sprints: Sprints; columns: Columns[] }) {}
+  constructor(private readonly props: IssueProps, private readonly options: { deliveredStatuses: string[]; sprints: Sprints; columns: Columns[] }) {
+    this.changelogs = new Changelogs({
+      changelogs: [],
+      statusMap: {
+        [Statuses.TODO]: [],
+        [Statuses.IN_PROGRESS]: [],
+        [Statuses.HOLD]: [],
+        [Statuses.QA]: [],
+      },
+      createdAt: this.props.createdAt,
+    });
+  }
 
   public getKey() {
     return this.props.key;
   }
 
-  public setChangelogs(changelogs: IssueChangelog[]) {
+  public setChangelogs(changelogs: Changelogs) {
     this.changelogs = changelogs;
   }
 
+  public getCreatedAt() {
+    return this.props.createdAt;
+  }
+
   public getStartedAt(): Date | null {
-    let last: Date | null = null;
-    for (const changelog of this.changelogs) {
-      if (!changelog.isStatusChangelog()) {
-        continue;
-      }
+    const startedAt = this.changelogs.getStartedAt();
 
-      const from = changelog.getFromStringNormalized();
-      const to = changelog.getToStringNormalized();
-
-      const isChangingToInProgress = to === Statuses.IN_PROGRESS && [Statuses.TODO, Statuses.DRAFT].includes((from ?? '') as Statuses);
-      if (!isChangingToInProgress) {
-        continue;
-      }
-
-      const isFirstTimeSwitchedToInProgress = last === null || last < changelog.getChangedAt();
-      if (isFirstTimeSwitchedToInProgress) {
-        last = changelog.getChangedAt();
-      }
+    // Never goes to in progress, likely moved to done directly
+    // Fallback to creation date
+    if (startedAt === null && this.props.resolvedAt !== null) {
+      return this.props.createdAt;
     }
 
-    return last;
+    return startedAt;
   }
 
   public getEpicKey() {
@@ -113,14 +109,7 @@ export class Issue {
 
     // Skip if not started
     if (start === null) {
-      // Not started & not resolved
-      if (this.props.resolvedAt === null) {
-        return null;
-      }
-
-      // Resolved but not start date, mean that directly switched to done without being set to "in progress"
-      // falling back to creation date
-      start = this.props.createdAt;
+      return null;
     }
 
     // Calculate until now if no end date
@@ -134,90 +123,13 @@ export class Issue {
 
     // Skip if not started
     if (start === null) {
-      // Not started & not resolved
-      if (this.props.resolvedAt === null) {
-        return null;
-      }
-
-      // Resolved but not start date, mean that directly switched to done without being set to "in progress"
-      // falling back to creation date
-      start = this.props.createdAt;
+      return null;
     }
 
     // Calculate until now if no end date
     const end = this.props.resolvedAt instanceof Date ? this.props.resolvedAt : new Date();
 
-    let totalDuration = 0;
-    let current = startOfDay(start);
-    const endOfPeriod = endOfDay(end);
-
-    const startDay = this.toDate(start);
-    const endDay = this.toDate(end);
-
-    while (current <= endOfPeriod) {
-      if (!isWeekend(current)) {
-        const currentDay = this.toDate(current);
-        // Define workday start and end
-        const startOfWorkDay = new Date(current);
-        startOfWorkDay.setHours(WORK_START_HOUR, 0, 0, 0);
-
-        const endOfWorkDay = new Date(current);
-        endOfWorkDay.setHours(WORK_END_HOUR, 0, 0, 0);
-
-        // Calculate the effective work start and end time for this day
-        const taskStart = currentDay === startDay ? start : startOfWorkDay;
-        const taskEnd = currentDay === endDay ? end : endOfWorkDay;
-
-        let durationMs = taskEnd.getTime() - taskStart.getTime();
-        // Subtract 1 hour for lunch break if the work period is greater than SIX_HOURS
-        if (durationMs > SIX_HOURS) {
-          durationMs -= ONE_HOUR; // Lunch break
-        }
-        totalDuration += durationMs;
-      }
-      current = addDays(current, 1); // Move to next day
-    }
-
-    return totalDuration;
-  }
-
-  private toDurationInSeconds(durationMs: number | null): number | null {
-    if (durationMs === null) {
-      return null;
-    }
-
-    return Math.round(durationMs / 1000);
-  }
-
-  private toDurationInHours(durationMs: number | null): number | null {
-    if (durationMs === null) {
-      return null;
-    }
-
-    const durationHours = durationMs / ONE_HOUR;
-    const duration = Math.round(durationHours * 2) / 2; // Round to nearest half-hour
-
-    if (duration === 0 && durationMs > 0) {
-      return 0.5;
-    }
-
-    return duration;
-  }
-
-  private toDurationInRoundedDays(durationMs: number | null, hoursInADay: number): number | null {
-    if (durationMs === null) {
-      return null;
-    }
-
-    // Calculate total workdays rounded to the nearest half-day
-    const durationDays = durationMs / hoursInADay;
-    const duration = Math.round(durationDays * 2) / 2; // Round to nearest half-day
-
-    if (duration === 0 && durationMs > 0) {
-      return 0.5;
-    }
-
-    return duration;
+    return TimeUtil.getBusinessDurationMs({ start, end });
   }
 
   public getIssueType() {
@@ -273,40 +185,8 @@ export class Issue {
     };
   }
 
-  private toDate(value: Date | null | undefined, returnNull: boolean = false) {
-    if (!value) {
-      return returnNull ? null : '';
-    }
-
-    return format(value, 'yyyy-MM-dd');
-  }
-
   private getEpicLabel(): string | null {
     return this.props.epic?.summary ? this.props.epic?.summary.replace(/\[.*\]\s*/, '') : null;
-  }
-
-  private toWeekOfYear(date: Date | null) {
-    if (date === null) {
-      return null;
-    }
-
-    return `W${format(date, 'yyyy-ww')}`;
-  }
-
-  private toMonthOfYear(date: Date | null) {
-    if (date === null) {
-      return null;
-    }
-
-    return `M${format(date, 'yyyy-MM')}`;
-  }
-
-  private toQuarterOfYear(date: Date | null) {
-    if (date === null) {
-      return null;
-    }
-
-    return `Q${format(date, 'yyyy-QQQ')}`;
   }
 
   public getValues(): Record<Columns, unknown> {
@@ -321,8 +201,10 @@ export class Issue {
     const leadTimeMs = this.getLeadTimeMs();
     const leadTimeBusinessMs = this.getLeadTimeBusinessMs();
 
-    const leadTimeDays = this.toDurationInRoundedDays(leadTimeMs, DAY_HOURS);
-    const leadTimeBusinessDays = this.toDurationInRoundedDays(leadTimeBusinessMs, WORK_DAY_HOURS);
+    const leadTimeDays = TimeUtil.toDurationInRoundedDays24h(leadTimeMs);
+    const leadTimeBusinessDays = TimeUtil.toDurationInRoundedDaysBusinessHours(leadTimeBusinessMs);
+
+    const durationsByStatus = this.changelogs.getDurations();
 
     return {
       [Columns.ID]: this.props.id,
@@ -354,31 +236,40 @@ export class Issue {
 
       [Columns.CREATED_AT]: this.props.createdAt,
       [Columns.CREATED_SPRINT]: createdAtSprint ? createdAtSprint.label : null,
-      [Columns.CREATED_WEEK]: this.toWeekOfYear(createdAt),
-      [Columns.CREATED_MONTH]: this.toMonthOfYear(createdAt),
-      [Columns.CREATED_QUARTER]: this.toQuarterOfYear(createdAt),
+      [Columns.CREATED_WEEK]: TimeUtil.toWeekOfYear(createdAt),
+      [Columns.CREATED_MONTH]: TimeUtil.toMonthOfYear(createdAt),
+      [Columns.CREATED_QUARTER]: TimeUtil.toQuarterOfYear(createdAt),
 
       [Columns.STARTED_AT]: startedAt,
       [Columns.STARTED_SPRINT]: startedAtSprint ? startedAtSprint.label : null,
-      [Columns.STARTED_WEEK]: this.toWeekOfYear(startedAt),
-      [Columns.STARTED_MONTH]: this.toMonthOfYear(startedAt),
-      [Columns.STARTED_QUARTER]: this.toQuarterOfYear(startedAt),
+      [Columns.STARTED_WEEK]: TimeUtil.toWeekOfYear(startedAt),
+      [Columns.STARTED_MONTH]: TimeUtil.toMonthOfYear(startedAt),
+      [Columns.STARTED_QUARTER]: TimeUtil.toQuarterOfYear(startedAt),
 
       [Columns.RESOLVED_AT]: this.props.resolvedAt,
       [Columns.RESOLVED_SPRINT]: resolvedAtSprint ? resolvedAtSprint.label : null,
-      [Columns.RESOLVED_WEEK]: this.toWeekOfYear(resolvedAt),
-      [Columns.RESOLVED_MONTH]: this.toMonthOfYear(resolvedAt),
-      [Columns.RESOLVED_QUARTER]: this.toQuarterOfYear(resolvedAt),
+      [Columns.RESOLVED_WEEK]: TimeUtil.toWeekOfYear(resolvedAt),
+      [Columns.RESOLVED_MONTH]: TimeUtil.toMonthOfYear(resolvedAt),
+      [Columns.RESOLVED_QUARTER]: TimeUtil.toQuarterOfYear(resolvedAt),
 
-      [Columns.LEAD_TIME_SECONDS]: this.toDurationInSeconds(leadTimeMs),
-      [Columns.LEAD_TIME_HOURS]: this.toDurationInHours(leadTimeMs),
+      [Columns.LEAD_TIME_SECONDS]: TimeUtil.toDurationInSeconds(leadTimeMs),
+      [Columns.LEAD_TIME_HOURS]: TimeUtil.toDurationInHours(leadTimeMs),
       [Columns.LEAD_TIME_DAYS]: leadTimeDays,
       [Columns.LEAD_TIME_DAYS_BUCKET]: this.getLeadTimeDayBucket(leadTimeDays, [7, 14, 21, 28, 35]),
 
-      [Columns.LEAD_TIME_BUSINESS_SECONDS]: this.toDurationInSeconds(leadTimeBusinessMs),
-      [Columns.LEAD_TIME_BUSINESS_HOURS]: this.toDurationInHours(leadTimeBusinessMs),
+      [Columns.LEAD_TIME_BUSINESS_SECONDS]: TimeUtil.toDurationInSeconds(leadTimeBusinessMs),
+      [Columns.LEAD_TIME_BUSINESS_HOURS]: TimeUtil.toDurationInHours(leadTimeBusinessMs),
       [Columns.LEAD_TIME_BUSINESS_DAYS]: leadTimeBusinessDays,
       [Columns.LEAD_TIME_BUSINESS_DAYS_BUCKET]: this.getLeadTimeDayBucket(leadTimeBusinessDays, [5, 10, 15, 20, 30]),
+
+      [Columns.STATUS_DURATION_DAYS_TODO]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.TODO].milliseconds),
+      [Columns.STATUS_BUSINESS_DURATION_DAYS_TODO]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.TODO].businessMilliseconds),
+      [Columns.STATUS_DURATION_DAYS_HOLD]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.HOLD].milliseconds),
+      [Columns.STATUS_BUSINESS_DURATION_DAYS_HOLD]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.HOLD].businessMilliseconds),
+      [Columns.STATUS_DURATION_DAYS_IN_PROGRESS]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.IN_PROGRESS].milliseconds),
+      [Columns.STATUS_BUSINESS_DURATION_DAYS_IN_PROGRESS]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.IN_PROGRESS].businessMilliseconds),
+      [Columns.STATUS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.QA].milliseconds),
+      [Columns.STATUS_BUSINESS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.QA].businessMilliseconds),
     };
   }
 
@@ -422,104 +313,9 @@ export class Issue {
       case typeof value === 'boolean':
         return value === true ? 'YES' : 'NO';
       case value instanceof Date:
-        return this.toDate(value as Date);
+        return TimeUtil.toDate(value as Date);
       default:
         return value;
     }
   }
-
-  // public toRow(sprint: Sprint): Record<string, string | number | boolean> {
-  //   const estimation = this.getEstimation();
-  //
-  //   const isCommitted = this.isInSprintCommitment(sprint);
-  //   const sprintCommittedStoryPoints = isCommitted ? estimation : 0;
-  //
-  //   // Use only done status as
-  //   const isDelivered = this.isinSprintDelivery(sprint);
-  //   const sprintDeliveredStoryPoint = isDelivered ? estimation : 0;
-  //   const sprintName = sprint.getSprintName();
-  //   const isActualSprint = sprint.isActualSprint();
-  //   const startedInSprint = this.startedInSprint(sprint);
-  //   const resolvedInSprint = this.resolvedInSprint(sprint);
-  //   const createdInSprint = this.createdInSprint(sprint);
-  //   const startedAt = this.getStartedAt();
-  //   const worDurationMs = this.getLeadTimeMs();
-  //
-  //   const epicLabel = this.props.epic?.summary ? this.props.epic?.summary.replace(/\[.*\]\s*/, '') : '';
-  //
-  //   return {
-  //     // ⚠️Do not change the order of the keys, this will break the pivot table & charts ⚠️
-  //     id: this.props.id,
-  //     type: this.getIssueType(),
-  //     key: this.props.key,
-  //     status: this.props.status,
-  //     summary: this.props.summary,
-  //     estimation,
-  //     timeSpent: this.props.totalTimeSpent,
-  //     reporter: this.props.reporter.name,
-  //     assignee: this.props.assignee?.name ?? this.props.parent?.assignee?.name ?? '',
-  //     createdAt: this.props.createdAt.toISOString(),
-  //     resolvedAt: this.toDate(this.props.resolvedAt),
-  //     priority: this.props.priority,
-  //     epicKey: this.props.epic?.key ?? '',
-  //     epicSummary: this.props.epic?.summary ?? '',
-  //     link: this.props.link,
-  //     sprintId: sprint.getId(),
-  //     sprintName,
-  //     sprintStartedAt: sprint.getStartedAt()?.toISOString() ?? '',
-  //     sprintEndedAt: sprint.getEndedAt()?.toISOString() ?? '',
-  //     sprintCompletedAt: sprint.getCompletedAt()?.toISOString() ?? '',
-  //     isCommitted,
-  //     isDelivered,
-  //     sprintCommittedStoryPoints,
-  //     sprintDeliveredStoryPoint,
-  //     sprintGoal: sprint.getGoal(),
-  //     startedAt: this.getStartedAt()?.toISOString() ?? '',
-  //     workDurationMs: isDelivered ? worDurationMs ?? '' : '',
-  //     workDurationHrs: isDelivered ? this.toDurationInHours(worDurationMs) ?? '' : '',
-  //     weekResolvedAt: this.props.resolvedAt ? 'W' + format(this.props.resolvedAt, 'yyyy-ww') : '',
-  //     supportDiscoveredBy: this.props.supportDiscoveredBy,
-  //     supportResolutionType: this.props.supportResolutionType,
-  //     isActualSprint,
-  //     startedInSprint: startedInSprint ? 'YES' : '',
-  //     resolvedInSprint: resolvedInSprint ? 'YES' : '',
-  //     createdInSprint: createdInSprint ? 'YES' : '',
-  //     product: this.props.product ?? '',
-  //     epicLabel,
-  //     fortnightResolvedAt: this.props.resolvedAt ? 'F' + this.getFortnight(this.props.resolvedAt) : '',
-  //     monthResolvedAt: this.props.resolvedAt ? 'M' + format(this.props.resolvedAt, 'yyyy-MM') : '',
-  //     quarterResolvedAt: this.props.resolvedAt ? 'Q' + format(this.props.resolvedAt, 'yyyy-QQQ') : '',
-  //
-  //     weekCreatedAt: 'W' + format(this.props.createdAt, 'yyyy-ww'),
-  //     fortnightCreatedAt: this.getFortnight(this.props.createdAt),
-  //     monthCreatedAt: format(this.props.createdAt, 'yyyy-MM'),
-  //     quarterCreatedAt: format(this.props.createdAt, 'yyyy-QQQ'),
-  //
-  //     weekStartedAt: startedAt ? 'W' + format(startedAt, 'yyyy-ww') : '',
-  //     fortnightStartedAt: startedAt ? 'F' + this.getFortnight(startedAt) : '',
-  //     monthStartedAt: startedAt ? 'M' + format(startedAt, 'yyyy-MM') : '',
-  //     quarterStartedAt: startedAt ? 'Q' + format(startedAt, 'yyyy-QQQ') : '',
-  //     workDurationDays: this.toDurationInRoundedDays(worDurationMs) ?? '',
-  //   };
-  // }
-
-  // private getFortnight(date: Date): string {
-  //   // Get the start of the year for the given date
-  //   const year = date.getFullYear();
-  //   const startOfYearDate = startOfYear(date);
-  //
-  //   // Calculate the difference in days from the start of the year
-  //   const diffInDays = differenceInDays(date, startOfYearDate);
-  //
-  //   // Calculate the fortnight number
-  //   const fortnightNumber = Math.floor(diffInDays / 14) + 1;
-  //
-  //   // Return the fortnight ID in the format "YYYY-FN"
-  //   return `${year}-${fortnightNumber.toString().padStart(2, '0')}`;
-  // }
-  //
-  // private round(value: number, decimalPlaces: number = 2): number {
-  //   const factor = Math.pow(10, decimalPlaces);
-  //   return Math.round(value * factor) / factor;
-  // }
 }

@@ -9,7 +9,7 @@ export type IssueChangelogProps = {
   to: string;
   toString: string | null;
 };
-export class IssueChangelog {
+export class Changelog {
   constructor(private readonly props: IssueChangelogProps) {}
 
   public isSprintChangeLog() {

@@ -1,4 +1,4 @@
-import { IssueChangelog } from "../entities/IssueChangelog";
+import { Changelog } from '../entities/Changelog';
 
 export interface JiraIssueChangelogDto {
   id: string;
@@ -18,10 +18,10 @@ export interface JiraIssueChangelogDto {
   }>;
 }
 
-export function toIssueChangelog(jira: JiraIssueChangelogDto): IssueChangelog {
+export function toIssueChangelog(jira: JiraIssueChangelogDto): Changelog {
   const item = jira.items[0];
 
-  return new IssueChangelog({
+  return new Changelog({
     changedAt: new Date(jira.created),
     fieldId: item.fieldId,
     from: item.from,

@@ -6,7 +6,7 @@ import { JiraIssueDto, toIssue } from './JiraIssueDto';
 import { Fields } from './Fields';
 import { Sprint } from '../entities/Sprint';
 import { Issue } from '../entities/Issue';
-import { IssueChangelog } from '../entities/IssueChangelog';
+import { Changelog } from '../entities/Changelog';
 import axiosRetry from 'axios-retry';
 import * as console from 'console';
 
@@ -119,7 +119,7 @@ export class JiraApi {
     ];
   }
 
-  public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<IssueChangelog[]> {
+  public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Changelog[]> {
     const response = await this.axios.request<{
       values: JiraIssueChangelogDto[];
     }>({
