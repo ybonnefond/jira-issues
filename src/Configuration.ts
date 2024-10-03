@@ -73,6 +73,7 @@ export class Configuration {
       [Statuses.IN_PROGRESS]: env.get('STATUS_IN_PROGRESS').required().asArray(',') as string[],
       [Statuses.HOLD]: env.get('STATUS_HOLD').required().asArray(',') as string[],
       [Statuses.QA]: env.get('STATUS_QA').required().asArray(',') as string[],
+      [Statuses.DONE]: env.get('STATUS_DONE').required().asArray(',') as string[],
     };
   }
 

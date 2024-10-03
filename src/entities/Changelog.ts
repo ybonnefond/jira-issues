@@ -17,7 +17,7 @@ export class Changelog {
   }
 
   public isStatusChangelog() {
-    return this.props.fieldId === Fields.STATUS;
+    return this.props.fieldId === Fields.STATUS || this.props.fieldId === Fields.RESOLUTION;
   }
 
   public getFrom(): string[] {

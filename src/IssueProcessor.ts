@@ -37,6 +37,10 @@ export class IssueProcessor {
         for (const issue of batch) {
           const changelogs = await this.loadChangelogs(issue.getKey());
 
+          if (issue.getKey() === 'VGP-3898') {
+            console.log('VGP-3898');
+          }
+
           issue.setChangelogs(new Changelogs({ changelogs, statusMap: this.configuration.statusMap, createdAt: issue.getCreatedAt() }));
 
           if (!issue.hasAssignee()) {
@@ -47,7 +51,8 @@ export class IssueProcessor {
             }
           }
 
-          this.writer.write(issue.toRow());
+          const row = issue.toRow();
+          this.writer.write(row);
         }
 
         console.log('');

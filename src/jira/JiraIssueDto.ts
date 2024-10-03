@@ -3,6 +3,7 @@ import { Issue, IssueProps } from '../entities/Issue';
 import { Fields } from './Fields';
 import { Columns } from '../Columns';
 import { Sprints } from '../Sprints';
+import console from 'console';
 
 export interface JiraIssueCustomField {
   id: string;

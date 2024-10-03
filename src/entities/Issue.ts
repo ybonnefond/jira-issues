@@ -71,6 +71,7 @@ export class Issue {
         [Statuses.IN_PROGRESS]: [],
         [Statuses.HOLD]: [],
         [Statuses.QA]: [],
+        [Statuses.DONE]: [],
       },
       createdAt: this.props.createdAt,
     });

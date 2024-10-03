@@ -40,6 +40,7 @@ export class Changelogs {
       [Statuses.IN_PROGRESS]: { milliseconds: 0, businessMilliseconds: 0 },
       [Statuses.HOLD]: { milliseconds: 0, businessMilliseconds: 0 },
       [Statuses.QA]: { milliseconds: 0, businessMilliseconds: 0 },
+      [Statuses.DONE]: { milliseconds: 0, businessMilliseconds: 0 },
     };
 
     // Initialize currentStatus and lastChangeTime

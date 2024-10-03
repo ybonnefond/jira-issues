@@ -5,4 +5,5 @@ export type StatusMap = {
   [Statuses.IN_PROGRESS]: string[];
   [Statuses.HOLD]: string[];
   [Statuses.QA]: string[];
+  [Statuses.DONE]: string[];
 };
