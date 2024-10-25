@@ -8,6 +8,8 @@ import { Columns } from './Columns';
 import { Statuses } from './jira/Statuses';
 import { StatusMap } from './StatusMap';
 
+export type GithubAuthor = { handle: string; name: string };
+
 export class Configuration {
   public readonly root: string;
   public readonly output: string;
@@ -25,6 +27,16 @@ export class Configuration {
     resolvedIssuesFrom: string;
     sprintStartedAtFrom: string;
     issueTypes: string;
+    batchSize: number;
+  };
+
+  public readonly github: {
+    origin: string;
+    token: string;
+    organization: string;
+    authors: Authors;
+    repositories: string[];
+    prClosedFrom: Date;
     batchSize: number;
   };
 
@@ -68,6 +80,16 @@ export class Configuration {
       batchSize: 100,
     };
 
+    this.github = {
+      origin: env.get('GITHUB_ORIGIN').default('https://api.github.com').asString(),
+      token: env.get('GITHUB_TOKEN').required().asString(),
+      organization: env.get('GITHUB_ORGANIZATION').required().asString(),
+      authors: new Authors((env.get('GITHUB_AUTHORS').required().asArray(',') as string[]).map(parseAuthor)),
+      prClosedFrom: parse(env.get('GITHUB_PR_CLOSED_FROM').required().asString(), 'yyyy-MM-dd', new Date()),
+      repositories: env.get('GITHUB_REPOSITORIES').required().asArray(',') as string[],
+      batchSize: 100,
+    };
+
     this.statusMap = {
       [Statuses.TODO]: env.get('STATUS_TODO').required().asArray(',') as string[],
       [Statuses.IN_PROGRESS]: env.get('STATUS_IN_PROGRESS').required().asArray(',') as string[],
@@ -82,5 +104,25 @@ export class Configuration {
     process.env.ROOT = ROOT;
     dotenv.config({ path: join(ROOT, '.env') });
     return new Configuration(process.env);
+  }
+}
+
+function parseAuthor(author: string) {
+  const regex = /^([^()]+)\(([^)]+)\)$/;
+  const match = author.match(regex);
+
+  if (!match) {
+    throw new Error(`Invalid author format: ${author}`);
+  }
+
+  return { handle: match[1], name: match[2] };
+}
+
+export class Authors {
+  constructor(private readonly authors: GithubAuthor[]) {}
+
+  public findAuthorNameByGithubHandle(handle: string): string | null {
+    const author = this.authors.find((author) => author.handle === handle);
+    return author ? author.name : null;
   }
 }

@@ -1,7 +1,5 @@
 import { Sprint } from './Sprint';
-import { Changelog } from './Changelog';
 import { Statuses } from '../jira/Statuses';
-import { format, startOfDay, endOfDay, isWeekend, addDays } from 'date-fns';
 import { Columns } from '../Columns';
 import { Sprints } from '../Sprints';
 import { StringUtils } from '../StringUtils';

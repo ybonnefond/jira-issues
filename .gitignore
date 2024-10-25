@@ -38,3 +38,5 @@ lerna-debug.log*
 .env
 output
 api-key.txt
+
+config.json

@@ -1,10 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
-import { JiraSprintDto, toSprint } from './JiraSprintDto';
 import { JiraIssueChangelogDto, toIssueChangelog } from './JiraIssueChangelogDto';
 import { Configuration } from '../Configuration';
 import { JiraIssueDto, toIssue } from './JiraIssueDto';
 import { Fields } from './Fields';
-import { Sprint } from '../entities/Sprint';
 import { Issue } from '../entities/Issue';
 import { Changelog } from '../entities/Changelog';
 import axiosRetry from 'axios-retry';
