@@ -200,6 +200,8 @@ export class Issue {
 
     const durationsByStatus = this.changelogs.getDurations();
 
+    const assignee = this.findAssignee();
+
     return {
       [Columns.ID]: this.props.id,
       [Columns.TYPE]: this.getIssueType(),
@@ -212,7 +214,9 @@ export class Issue {
       [Columns.ESTIMATION]: this.props.estimation,
       [Columns.TIME_SPENT]: this.props.totalTimeSpent > 0 ? this.props.totalTimeSpent : null,
       [Columns.REPORTER]: this.props.reporter.name,
-      [Columns.ASSIGNEE]: this.props.assignee?.getName() ?? this.props.parent?.assignee?.getName() ?? null,
+      [Columns.ASSIGNEE]: assignee instanceof User ? assignee.getName() : null,
+      [Columns.ASSIGNEE_SENIORITY]: assignee instanceof User ? assignee.getSeniority() : null,
+      [Columns.ASSIGNEE_ROLE]: assignee instanceof User ? assignee.getRole() : null,
       [Columns.PRIORITY]: this.props.priority,
       [Columns.EPIC_KEY]: this.props.epic?.key,
       [Columns.EPIC_SUMMARY]: this.props.epic?.summary,
@@ -265,6 +269,18 @@ export class Issue {
       [Columns.STATUS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.QA].milliseconds),
       [Columns.STATUS_BUSINESS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.QA].businessMilliseconds),
     };
+  }
+
+  private findAssignee(): User | null {
+    if (this.props.assignee instanceof User) {
+      return this.props.assignee;
+    }
+
+    if (this.props.parent?.assignee instanceof User) {
+      return this.props.parent.assignee;
+    }
+
+    return null;
   }
 
   private getLeadTimeDayBucket(value: number | null, buckets: number[]) {
