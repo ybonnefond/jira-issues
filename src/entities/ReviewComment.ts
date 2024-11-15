@@ -1,5 +1,5 @@
 import { PullRequest } from './PullRequest';
-import { TimeUtil } from '../TimeUtil';
+import { User } from './User';
 
 export type ReviewCommentProps = {
   id: number;
@@ -8,7 +8,7 @@ export type ReviewCommentProps = {
   reviewId: number | null;
   commitId: string;
   inReplyToId: number | null;
-  author: string;
+  author: User;
   createdAt: Date;
   updatedAt: Date;
   htmlUrl: string;
@@ -18,13 +18,17 @@ export type ReviewCommentProps = {
 export class ReviewComment {
   constructor(private readonly props: ReviewCommentProps) {}
 
+  public getReviewId() {
+    return this.props.reviewId;
+  }
+
   public toRow() {
     const prRow = this.props.pullRequest.toRow();
 
     return {
       id: this.props.id,
       url: this.props.htmlUrl,
-      author: this.props.author,
+      author: this.props.author.getName(),
       reviewId: this.props.reviewId,
       commitId: this.props.commitId,
 
@@ -46,6 +50,10 @@ export class ReviewComment {
       prClosedAtWeek: prRow.closedAtWeek,
       prClosedAtMonth: prRow.closedAtMonth,
       prClosedAtQuarter: prRow.closedAtQuarter,
+      authorSeniority: this.props.author.getSeniority(),
+      authorRole: this.props.author.getRole(),
+      prAuthorSeniority: prRow.authorSeniority,
+      prAuthorRole: prRow.authorRole,
     };
   }
 }

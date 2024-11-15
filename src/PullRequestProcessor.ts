@@ -19,15 +19,17 @@ export class PullRequestProcessor {
   private readonly github: GithubApi;
   private readonly prWriter: CsvWriter;
   private readonly commentWriter: CsvWriter;
+  private readonly reviewWriter: CsvWriter;
   private readonly configuration: Configuration;
   private readonly pullRequestMapper: PullRequestMapper;
 
-  constructor({ github, prWriter, configuration, commentWriter }: { github: GithubApi; prWriter: CsvWriter; commentWriter: CsvWriter; configuration: Configuration }) {
+  constructor({ github, prWriter, configuration, commentWriter, reviewWriter }: { github: GithubApi; prWriter: CsvWriter; commentWriter: CsvWriter; reviewWriter: CsvWriter; configuration: Configuration }) {
     this.github = github;
     this.prWriter = prWriter;
     this.commentWriter = commentWriter;
+    this.reviewWriter = reviewWriter;
     this.configuration = configuration;
-    this.pullRequestMapper = new PullRequestMapper({ authors: this.configuration.github.authors });
+    this.pullRequestMapper = new PullRequestMapper({ users: this.configuration.users });
   }
 
   public async process() {
@@ -35,6 +37,7 @@ export class PullRequestProcessor {
 
     await this.prWriter.begin();
     await this.commentWriter.begin();
+    await this.reviewWriter.begin();
 
     let total = 0;
 
@@ -67,15 +70,31 @@ export class PullRequestProcessor {
             console.log(`Fetching info for pull request ${repository}#${chalk.blue(searchPr.number)}`);
             const pullRequest = await this.github.getPullRequest({ pullRequestNumber: searchPr.number, repository });
 
-            const githubReviews = await this.github.getPullRequestReviews({ repository, pullRequest });
-            const reviewComments = await this.github.listPullRequestReviewComments({ repository, pullRequest });
+            if (pullRequest === null) {
+              console.log(`Unknown pull request author ${searchPr.user.login}, skipping...`);
+              continue;
+            }
 
-            const reviewStates = mapGithubReviewsToStateCount(githubReviews);
+            const reviewComments = await this.github.listPullRequestReviewComments({ repository, pullRequest });
+            const reviews = await this.github.getPullRequestReviews({ repository, pullRequest });
+
+            const reviewStates = mapGithubReviewsToStateCount(reviews);
 
             this.prWriter.write({
               ...pullRequest.toRow(),
               ...reviewStates,
             });
+
+            if (reviews.length > 0) {
+              console.log(`Writing reviews ${repository}#${chalk.blue(pullRequest.getNumber())}`);
+              for (const review of reviews) {
+                const comments = reviewComments.filter((comment) => comment.getReviewId() === review.getId());
+                this.reviewWriter.write({
+                  ...review.toRow(),
+                  comments: comments.length,
+                });
+              }
+            }
 
             if (reviewComments.length > 0) {
               console.log(`Writing comments ${repository}#${chalk.blue(pullRequest.getNumber())}`);

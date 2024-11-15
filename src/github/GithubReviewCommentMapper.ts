@@ -1,19 +1,17 @@
-import { TimeUtil } from '../TimeUtil';
-import { PullRequest, PullRequestProps } from '../entities/PullRequest';
-import { Authors } from '../Configuration';
-import { GithubPullRequest } from './GithubPullRequest';
+import { PullRequest } from '../entities/PullRequest';
 import { ReviewComment, ReviewCommentProps } from '../entities/ReviewComment';
 import { GithubReviewComment } from './GithubReviewComment';
+import { Users } from '../entities/Users';
 
 export class GithubReviewCommentMapper {
-  private readonly authors: Authors;
+  private readonly users: Users;
 
-  constructor({ authors }: { authors: Authors }) {
-    this.authors = authors;
+  constructor({ users }: { users: Users }) {
+    this.users = users;
   }
 
   public toReviewComment({ pullRequest, comment }: { pullRequest: PullRequest; comment: GithubReviewComment }): ReviewComment | null {
-    const author = this.authors.findAuthorNameByGithubHandle(comment.user?.login);
+    const author = this.users.findUserByGithubHandle(comment.user?.login);
 
     // Skipping unknown users (like bots and co..)
     if (author === null) {

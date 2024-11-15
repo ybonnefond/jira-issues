@@ -7,6 +7,11 @@ import { parse } from 'date-fns';
 import { Columns } from './Columns';
 import { Statuses } from './jira/Statuses';
 import { StatusMap } from './StatusMap';
+import configJson from '../config.json';
+import { Users } from './entities/Users';
+import { User } from './entities/User';
+import { parseUserRole } from './entities/UserRole';
+import { parseSeniority } from './entities/Seniority';
 
 export type GithubAuthor = { handle: string; name: string };
 
@@ -41,6 +46,8 @@ export class Configuration {
   };
 
   public readonly statusMap: StatusMap;
+
+  public readonly users: Users;
 
   constructor(envValues: NodeJS.ProcessEnv = process.env) {
     const env = envVar.from(envValues);
@@ -97,6 +104,18 @@ export class Configuration {
       [Statuses.QA]: env.get('STATUS_QA').required().asArray(',') as string[],
       [Statuses.DONE]: env.get('STATUS_DONE').required().asArray(',') as string[],
     };
+
+    this.users = new Users(
+      configJson.users.map((userData) => {
+        return new User({
+          name: userData.name,
+          githubHandle: userData.githubHandle,
+          jiraHandle: userData.jiraHandle,
+          role: parseUserRole(userData.role),
+          seniority: parseSeniority(userData.seniority),
+        });
+      }),
+    );
   }
 
   public static fromEnv(): Configuration {

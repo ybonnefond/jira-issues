@@ -5,6 +5,7 @@ import { Sprints } from '../Sprints';
 import { StringUtils } from '../StringUtils';
 import { TimeUtil, WORK_DAY_HOURS, DAY_HOURS } from '../TimeUtil';
 import { Changelogs } from './Changelogs';
+import { User } from './User';
 
 export type IssueProps = {
   id: number;
@@ -34,19 +35,13 @@ export type IssueProps = {
     status: string;
     priority: string;
     type: string;
-    assignee: null | {
-      name: string;
-      email: string | null;
-    };
+    assignee: null | User;
   };
   reporter: {
     name: string;
     email: string | null;
   };
-  assignee: null | {
-    name: string;
-    email: string | null;
-  };
+  assignee: User | null;
   type: string;
   resolvedAt: Date | null;
   createdAt: Date;
@@ -164,7 +159,7 @@ export class Issue {
     return this.props.priority;
   }
 
-  public getAssignee() {
+  public getAssignee(): User | null {
     return this.props.assignee;
   }
 
@@ -180,7 +175,7 @@ export class Issue {
       status: parent.getStatus(),
       priority: parent.getPriority(),
       type: parent.getType(),
-      assignee: parent.getAssignee(),
+      assignee: parent.getAssignee() ?? null,
     };
   }
 
@@ -217,7 +212,7 @@ export class Issue {
       [Columns.ESTIMATION]: this.props.estimation,
       [Columns.TIME_SPENT]: this.props.totalTimeSpent > 0 ? this.props.totalTimeSpent : null,
       [Columns.REPORTER]: this.props.reporter.name,
-      [Columns.ASSIGNEE]: this.props.assignee?.name ?? this.props.parent?.assignee?.name ?? null,
+      [Columns.ASSIGNEE]: this.props.assignee?.getName() ?? this.props.parent?.assignee?.getName() ?? null,
       [Columns.PRIORITY]: this.props.priority,
       [Columns.EPIC_KEY]: this.props.epic?.key,
       [Columns.EPIC_SUMMARY]: this.props.epic?.summary,

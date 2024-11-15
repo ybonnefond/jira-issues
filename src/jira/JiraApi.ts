@@ -1,18 +1,20 @@
 import axios, { AxiosInstance } from 'axios';
 import { JiraIssueChangelogDto, toIssueChangelog } from './JiraIssueChangelogDto';
 import { Configuration } from '../Configuration';
-import { JiraIssueDto, toIssue } from './JiraIssueDto';
+import { JiraIssueDto } from './JiraIssueDto';
 import { Fields } from './Fields';
 import { Issue } from '../entities/Issue';
 import { Changelog } from '../entities/Changelog';
 import axiosRetry from 'axios-retry';
 import * as console from 'console';
+import { JiraIssueMapper } from './JiraIssueMapper';
 
 const MAX_RESULTS = 100;
 
 export class JiraApi {
   private readonly axios: AxiosInstance;
   private readonly configuration: Configuration;
+  private readonly issueMapper: JiraIssueMapper;
 
   constructor({ configuration }: { configuration: Configuration }) {
     this.configuration = configuration;
@@ -31,6 +33,7 @@ export class JiraApi {
     });
 
     axiosRetry(this.axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+    this.issueMapper = new JiraIssueMapper({ users: this.configuration.users });
   }
 
   public async listIssue({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
@@ -48,15 +51,23 @@ export class JiraApi {
       },
     });
 
-    return response.data.issues.map((issue) =>
-      toIssue(issue, {
+    const issues = [];
+
+    for (const jiraIssueDto of response.data.issues) {
+      const issue = this.issueMapper.toIssue(jiraIssueDto, {
         origin: this.configuration.jira.origin,
         deliveredStatuses: this.configuration.deliveredStatuses,
         sprints: this.configuration.sprints,
         columns: this.configuration.columns,
         supportProductDefault: this.configuration.supportProductDefault,
-      }),
-    );
+      });
+
+      if (issue !== null) {
+        issues.push(issue);
+      }
+    }
+
+    return issues;
   }
 
   public async listEpics({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
@@ -74,15 +85,23 @@ export class JiraApi {
       },
     });
 
-    return response.data.issues.map((issue) =>
-      toIssue(issue, {
+    const issues = [];
+
+    for (const jiraIssueDto of response.data.issues) {
+      const issue = this.issueMapper.toIssue(jiraIssueDto, {
         origin: this.configuration.jira.origin,
         deliveredStatuses: this.configuration.deliveredStatuses,
         sprints: this.configuration.sprints,
         columns: this.configuration.columns,
         supportProductDefault: this.configuration.supportProductDefault,
-      }),
-    );
+      });
+
+      if (issue !== null) {
+        issues.push(issue);
+      }
+    }
+
+    return issues;
   }
 
   private getIssueFields() {
@@ -141,7 +160,7 @@ export class JiraApi {
       },
     });
 
-    return toIssue(response.data, {
+    return this.issueMapper.toIssue(response.data, {
       origin: this.configuration.jira.origin,
       deliveredStatuses: this.configuration.deliveredStatuses,
       sprints: this.configuration.sprints,

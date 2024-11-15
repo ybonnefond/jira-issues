@@ -14,15 +14,16 @@ async function main() {
   const issuesWriter = new CsvWriter({ configuration, filename: 'issues.csv' });
   const epicsWriter = new CsvWriter({ configuration, filename: 'epics.csv' });
   const prWriter = new CsvWriter({ configuration, filename: 'pr.csv' });
-  const commentWriter = new CsvWriter({ configuration, filename: 'pr_comments.csv' });
+  const commentWriter = new CsvWriter({ configuration, filename: 'pr-comments.csv' });
+  const reviewWriter = new CsvWriter({ configuration, filename: 'pr-reviews.csv' });
 
   const issueProcessor = new IssueProcessor({ jira, writer: issuesWriter, configuration });
   const epicsProcessor = new EpicProcessor({ jira, writer: epicsWriter, configuration });
-  const prProcessor = new PullRequestProcessor({ github, prWriter: prWriter, commentWriter, configuration });
+  const prProcessor = new PullRequestProcessor({ github, prWriter, commentWriter, reviewWriter, configuration });
 
+  await prProcessor.process();
   await epicsProcessor.process();
   await issueProcessor.process();
-  await prProcessor.process();
 }
 
 void main();

@@ -1,4 +1,5 @@
 import { TimeUtil } from '../TimeUtil';
+import { User } from './User';
 
 export interface PullRequestProps {
   id: number;
@@ -6,7 +7,7 @@ export interface PullRequestProps {
   title: string;
   number: number;
   link: string;
-  author: string;
+  author: User;
   repository: string;
   createdAt: Date;
   updatedAt: Date;
@@ -23,8 +24,20 @@ export interface PullRequestProps {
 export class PullRequest {
   constructor(private readonly props: PullRequestProps) {}
 
+  public getAuthor() {
+    return this.props.author;
+  }
+
   public getNumber() {
     return this.props.number;
+  }
+
+  public getClosedAt() {
+    return this.props.closedAt;
+  }
+
+  public getLink() {
+    return this.props.link;
   }
 
   public toRow() {
@@ -37,7 +50,7 @@ export class PullRequest {
       title: this.props.title,
       number: this.props.number,
       link: this.props.link,
-      author: this.props.author,
+      author: this.props.author.getName(),
       repository: this.props.repository,
       createdAt: TimeUtil.toDate(this.props.createdAt),
       createdAtWeek: TimeUtil.toWeekOfYear(this.props.createdAt),
@@ -61,6 +74,8 @@ export class PullRequest {
       leadTimeMs,
       leadTimeDays: leadTimeMs ? TimeUtil.toDurationInRoundedDays24h(leadTimeMs) : null,
       businessLeadTimeMs: businessLeadTimeMs ? TimeUtil.toDurationInRoundedDaysBusinessHours(businessLeadTimeMs) : null,
+      authorSeniority: this.props.author.getSeniority(),
+      authorRole: this.props.author.getRole(),
     };
   }
 }

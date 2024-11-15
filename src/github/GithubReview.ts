@@ -1,9 +1,10 @@
 import { GithubUser } from './GithubUser';
+import { Review } from '../entities/Review';
 
 export interface GithubReview {
   id: number;
   node_id: string;
-  user: GithubUser | null;
+  user: GithubUser;
   body: string;
   state: GithubReviewState;
   html_url: string;
@@ -33,14 +34,14 @@ export enum GithubReviewState {
   PENDING = 'PENDING',
 }
 
-export function mapGithubReviewsToStateCount(reviews: GithubReview[]) {
+export function mapGithubReviewsToStateCount(reviews: Review[]) {
   const reviewStates = Object.values(GithubReviewState).reduce((acc, state) => {
     acc[state] = 0;
     return acc;
   }, {} as Record<GithubReviewState, number>);
 
   return reviews.reduce((acc, review) => {
-    acc[review.state] += 1;
+    acc[review.getState()] += 1;
     return acc;
   }, reviewStates);
 }

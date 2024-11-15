@@ -11,12 +11,15 @@ import { PullRequestMapper } from './GithubPullRequestMapper';
 import { PullRequest, PullRequestProps } from '../entities/PullRequest';
 import { GithubReviewCommentMapper } from './GithubReviewCommentMapper';
 import { ReviewComment } from '../entities/ReviewComment';
+import { Review } from '../entities/Review';
+import { GithubReviewMapper } from './GithubReviewMapper';
 
 export class GithubApi {
   private readonly axios: AxiosInstance;
   private readonly configuration: Configuration;
   private readonly pullRequestMapper: PullRequestMapper;
   private readonly reviewCommentMapper: GithubReviewCommentMapper;
+  private readonly reviewMapper: GithubReviewMapper;
 
   constructor({ configuration }: { configuration: Configuration }) {
     this.configuration = configuration;
@@ -32,10 +35,11 @@ export class GithubApi {
       // timeout: 5000,
     });
 
-    axiosRetry(this.axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+    axiosRetry(this.axios, { retries: 5, retryDelay: axiosRetry.exponentialDelay });
 
-    this.pullRequestMapper = new PullRequestMapper({ authors: this.configuration.github.authors });
-    this.reviewCommentMapper = new GithubReviewCommentMapper({ authors: this.configuration.github.authors });
+    this.pullRequestMapper = new PullRequestMapper({ users: this.configuration.users });
+    this.reviewCommentMapper = new GithubReviewCommentMapper({ users: this.configuration.users });
+    this.reviewMapper = new GithubReviewMapper({ users: this.configuration.users });
   }
 
   public async listPullRequests({ page, maxResults, repository }: { page: number; maxResults: number; repository: string }): Promise<GithubSearchPullRequest[]> {
@@ -53,14 +57,14 @@ export class GithubApi {
     return results.data.items ?? [];
   }
 
-  public async getPullRequest({ pullRequestNumber, repository }: { pullRequestNumber: number; repository: string }): Promise<PullRequest> {
+  public async getPullRequest({ pullRequestNumber, repository }: { pullRequestNumber: number; repository: string }): Promise<PullRequest | null> {
     const result = await this.axios.get<GithubPullRequest>(`/repos/${this.configuration.github.organization}/${repository}/pulls/${pullRequestNumber}`);
 
     return this.pullRequestMapper.toPullRequest({ pr: result.data, repository });
   }
 
-  public async getPullRequestReviews({ repository, pullRequest }: { repository: string; pullRequest: PullRequest }): Promise<GithubReview[]> {
-    const reviews: GithubReview[] = [];
+  public async getPullRequestReviews({ repository, pullRequest }: { repository: string; pullRequest: PullRequest }): Promise<Review[]> {
+    const reviews: Review[] = [];
 
     await batch({
       batchSize: 100,
@@ -75,10 +79,25 @@ export class GithubApi {
           },
         });
 
+        if (!Array.isArray(result.data)) {
+          console.log('Invalid response', {
+            data: result.data,
+            status: result.status,
+            headers: result.headers,
+            url: `/repos/${this.configuration.github.organization}/${repository}/pulls/${pullRequest.getNumber()}/reviews`,
+          });
+          throw new Error('Invalid response');
+        }
+
         return result.data;
       },
       process: async (batch: GithubReview[]) => {
-        reviews.push(...batch);
+        batch.forEach((githubReview) => {
+          const review = this.reviewMapper.toReview({ pr: pullRequest, repository, review: githubReview });
+          if (review !== null) {
+            reviews.push(review);
+          }
+        });
       },
     });
 
@@ -87,11 +106,11 @@ export class GithubApi {
 
   public async listPullRequestReviewComments({ repository, pullRequest }: { repository: string; pullRequest: PullRequest }): Promise<ReviewComment[]> {
     const comments: ReviewComment[] = [];
-
+    const url = `/repos/${this.configuration.github.organization}/${repository}/pulls/${pullRequest.getNumber()}/comments`;
     await batch({
       batchSize: 100,
       load: async ({ page, batchSize, startAt }) => {
-        const results = await this.axios.get<GithubReviewComment[]>(`/repos/${this.configuration.github.organization}/${repository}/pulls/${pullRequest.getNumber()}/comments`, {
+        const results = await this.axios.get<GithubReviewComment[]>(url, {
           params: {
             per_page: batchSize,
             page,
@@ -100,6 +119,16 @@ export class GithubApi {
             order: 'desc',
           },
         });
+
+        if (!Array.isArray(results.data)) {
+          console.log('Invalid response', {
+            data: results.data,
+            status: results.status,
+            headers: results.headers,
+            url,
+          });
+          throw new Error('Invalid response');
+        }
 
         return results.data;
       },

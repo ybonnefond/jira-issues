@@ -2,19 +2,20 @@ import { TimeUtil } from '../TimeUtil';
 import { PullRequest, PullRequestProps } from '../entities/PullRequest';
 import { Authors } from '../Configuration';
 import { GithubPullRequest } from './GithubPullRequest';
+import { Users } from '../entities/Users';
 
 export class PullRequestMapper {
-  private readonly authors: Authors;
+  private readonly users: Users;
 
-  constructor({ authors }: { authors: Authors }) {
-    this.authors = authors;
+  constructor({ users }: { users: Users }) {
+    this.users = users;
   }
 
-  public toPullRequest({ pr, repository }: { pr: GithubPullRequest; repository: string }): PullRequest {
-    const author = this.authors.findAuthorNameByGithubHandle(pr.user?.login);
+  public toPullRequest({ pr, repository }: { pr: GithubPullRequest; repository: string }): PullRequest | null {
+    const author = this.users.findUserByGithubHandle(pr.user?.login);
 
     if (author === null) {
-      throw new Error(`Unknown author ${pr.user?.login}`);
+      return null;
     }
 
     const countComments = pr.comments ?? 0;
