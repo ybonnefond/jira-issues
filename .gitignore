@@ -40,3 +40,4 @@ output
 api-key.txt
 
 config.json
+*.iml

@@ -54,6 +54,9 @@ export class ReviewComment {
       authorRole: this.props.author.getRole(),
       prAuthorSeniority: prRow.authorSeniority,
       prAuthorRole: prRow.authorRole,
+      prNumber: prRow.number,
+      prId: prRow.id,
+      prTitle: prRow.title,
     };
   }
 }
