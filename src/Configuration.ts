@@ -31,7 +31,6 @@ export class Configuration {
     boardIds: string[];
     projectKey: string;
     resolvedIssuesFrom: string;
-    sprintStartedAtFrom: string;
     issueTypes: string;
     batchSize: number;
   };
@@ -85,7 +84,6 @@ export class Configuration {
       projectKey,
       resolvedIssuesFrom,
       issueTypes,
-      sprintStartedAtFrom: env.get('JIRA_SPRINT_START_DATE').required().asString(),
       batchSize: 100,
     };
 
