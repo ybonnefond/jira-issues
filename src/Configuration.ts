@@ -12,6 +12,7 @@ import { Users } from './entities/Users';
 import { User } from './entities/User';
 import { parseUserRole } from './entities/UserRole';
 import { parseSeniority } from './entities/Seniority';
+import { IssueTypeMapper } from './IssueTypeMapper';
 
 export type GithubAuthor = { handle: string; name: string };
 
@@ -46,6 +47,7 @@ export class Configuration {
   };
 
   public readonly statusMap: StatusMap;
+  public readonly issueTypeMapper: IssueTypeMapper;
 
   public readonly users: Users;
 
@@ -104,6 +106,8 @@ export class Configuration {
       [Statuses.QA]: env.get('STATUS_QA').required().asArray(',') as string[],
       [Statuses.DONE]: env.get('STATUS_DONE').required().asArray(',') as string[],
     };
+
+    this.issueTypeMapper = IssueTypeMapper.fromString(env.get('ISSUE_TYPES').required().asString());
 
     this.users = new Users(
       configJson.users.map((userData) => {

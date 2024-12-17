@@ -21,9 +21,9 @@ async function main() {
   const epicsProcessor = new EpicProcessor({ jira, writer: epicsWriter, configuration });
   const prProcessor = new PullRequestProcessor({ github, prWriter, commentWriter, reviewWriter, configuration });
 
-  await prProcessor.process();
   await epicsProcessor.process();
   await issueProcessor.process();
+  await prProcessor.process();
 }
 
 void main();

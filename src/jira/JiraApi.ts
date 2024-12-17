@@ -33,7 +33,7 @@ export class JiraApi {
     });
 
     axiosRetry(this.axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
-    this.issueMapper = new JiraIssueMapper({ users: this.configuration.users });
+    this.issueMapper = new JiraIssueMapper({ configuration: this.configuration });
   }
 
   public async listIssue({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
@@ -54,13 +54,7 @@ export class JiraApi {
     const issues = [];
 
     for (const jiraIssueDto of response.data.issues) {
-      const issue = this.issueMapper.toIssue(jiraIssueDto, {
-        origin: this.configuration.jira.origin,
-        deliveredStatuses: this.configuration.deliveredStatuses,
-        sprints: this.configuration.sprints,
-        columns: this.configuration.columns,
-        supportProductDefault: this.configuration.supportProductDefault,
-      });
+      const issue = this.issueMapper.toIssue(jiraIssueDto);
 
       if (issue !== null) {
         issues.push(issue);
@@ -88,13 +82,7 @@ export class JiraApi {
     const issues = [];
 
     for (const jiraIssueDto of response.data.issues) {
-      const issue = this.issueMapper.toIssue(jiraIssueDto, {
-        origin: this.configuration.jira.origin,
-        deliveredStatuses: this.configuration.deliveredStatuses,
-        sprints: this.configuration.sprints,
-        columns: this.configuration.columns,
-        supportProductDefault: this.configuration.supportProductDefault,
-      });
+      const issue = this.issueMapper.toIssue(jiraIssueDto);
 
       if (issue !== null) {
         issues.push(issue);
@@ -160,13 +148,7 @@ export class JiraApi {
       },
     });
 
-    return this.issueMapper.toIssue(response.data, {
-      origin: this.configuration.jira.origin,
-      deliveredStatuses: this.configuration.deliveredStatuses,
-      sprints: this.configuration.sprints,
-      columns: this.configuration.columns,
-      supportProductDefault: this.configuration.supportProductDefault,
-    });
+    return this.issueMapper.toIssue(response.data);
   }
 
   public async findFields() {

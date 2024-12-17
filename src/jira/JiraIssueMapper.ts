@@ -5,19 +5,20 @@ import { Issue, IssueProps } from '../entities/Issue';
 import { Fields } from './Fields';
 import { toSprint } from './JiraSprintDto';
 import { JiraIssueCustomField, JiraIssueDto } from './JiraIssueDto';
+import { Configuration } from '../Configuration';
 
 export class JiraIssueMapper {
-  private readonly users: Users;
+  private readonly configuration: Configuration;
 
-  constructor({ users }: { users: Users }) {
-    this.users = users;
+  constructor({ configuration }: { configuration: Configuration }) {
+    this.configuration = configuration;
   }
 
-  public toIssue(jira: JiraIssueDto, options: { origin: string; deliveredStatuses: string[]; sprints: Sprints; columns: Columns[]; supportProductDefault: string }): Issue {
+  public toIssue(jira: JiraIssueDto): Issue {
     const issueProps: IssueProps = {
       id: jira.id,
       key: jira.key,
-      link: `${options.origin}/browse/${jira.key}`,
+      link: `${this.configuration.jira.origin}/browse/${jira.key}`,
       summary: jira.fields.summary,
       status: jira.fields.status.name,
       assignee: null,
@@ -34,7 +35,7 @@ export class JiraIssueMapper {
       resolution: jira.fields.resolution?.name ?? '',
       epic: null,
       parent: null,
-      type: jira.fields.issuetype.name,
+      type: this.configuration.issueTypeMapper.mapIssueType(jira.fields.issuetype.name),
       createdAt: new Date(jira.fields.created),
       resolvedAt: jira.fields.resolutiondate ? new Date(jira.fields.resolutiondate) : null,
       estimation: jira.fields[Fields.ESTIMATION],
@@ -44,11 +45,11 @@ export class JiraIssueMapper {
       supportResolutionType: this.findSupportResolutionType(jira),
       product: this.getCustomFieldsValue({
         fields: [jira.fields[Fields.PRODUCT_07], jira.fields[Fields.PRODUCT_06], jira.fields[Fields.PRODUCT_05], jira.fields[Fields.PRODUCT_04], jira.fields[Fields.PRODUCT_03], jira.fields[Fields.PRODUCT_02], jira.fields[Fields.PRODUCT_01]],
-        fallback: options.supportProductDefault,
+        fallback: this.configuration.supportProductDefault,
       }),
     };
 
-    const user = this.users.findUserByJiraHandle(jira.fields.assignee?.displayName);
+    const user = this.configuration.users.findUserByJiraHandle(jira.fields.assignee?.displayName);
 
     issueProps.assignee = user;
 
@@ -72,12 +73,12 @@ export class JiraIssueMapper {
           summary: jira.fields.parent.fields.summary,
           status: jira.fields.parent.fields.status.name,
           priority: jira.fields.parent.fields.priority.name,
-          link: `${options.origin}/browse/${jira.fields.parent.key}`,
+          link: `${this.configuration.jira.origin}/browse/${jira.fields.parent.key}`,
         };
       }
     }
 
-    return new Issue(issueProps, { deliveredStatuses: options.deliveredStatuses, sprints: options.sprints, columns: options.columns });
+    return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.columns });
   }
 
   private findSupportDiscoveredBy(jira: JiraIssueDto): string {
