@@ -19,6 +19,6 @@ export async function batch<TItems>({ load, process, batchSize }: { batchSize: n
     startAt += items.length;
     page += 1;
 
-    await setTimeout(200);
+    await setTimeout(100);
   }
 }
