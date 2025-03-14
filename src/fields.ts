@@ -8,6 +8,8 @@ async function main() {
 
   const fields = await jira.findFields();
 
+  fields.sort((a, b) => a.name.localeCompare(b.name));
+
   const table = new Table({
     head: ['Field name', 'Jira field key'],
     // colWidths: [200, 300],

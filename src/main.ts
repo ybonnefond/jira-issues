@@ -23,7 +23,7 @@ async function main() {
 
   await epicsProcessor.process();
   await issueProcessor.process();
-  await prProcessor.process();
+  // await prProcessor.process();
 }
 
 void main();

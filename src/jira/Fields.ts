@@ -25,6 +25,10 @@ export enum Fields {
   STATUS_CATEGORY_CHANGEDATE = 'statuscategorychangedate',
   SUMMARY = 'summary',
   SUPPORT_DISCOVERED_BY = 'customfield_10252',
+  SUPPORT_DISCOVERED_BY_02 = 'customfield_10254',
+  SUPPORT_DISCOVERED_BY_03 = 'customfield_10256',
   SUPPORT_RESOLUTION_TYPE = 'customfield_10253',
+  SUPPORT_RESOLUTION_TYPE_02 = 'customfield_10255',
+  SUPPORT_RESOLUTION_TYPE_03 = 'customfield_10257',
   SUPPORT_ROOT_CAUSE = 'customfield_10035',
 }

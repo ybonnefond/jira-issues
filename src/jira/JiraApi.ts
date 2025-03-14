@@ -119,7 +119,11 @@ export class JiraApi {
       Fields.STATUS_CATEGORY_CHANGEDATE,
       Fields.SUMMARY,
       Fields.SUPPORT_DISCOVERED_BY,
+      Fields.SUPPORT_DISCOVERED_BY_02,
+      Fields.SUPPORT_DISCOVERED_BY_03,
       Fields.SUPPORT_RESOLUTION_TYPE,
+      Fields.SUPPORT_RESOLUTION_TYPE_02,
+      Fields.SUPPORT_RESOLUTION_TYPE_03,
       Fields.SUPPORT_ROOT_CAUSE,
     ];
   }

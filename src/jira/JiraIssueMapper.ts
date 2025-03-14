@@ -81,8 +81,13 @@ export class JiraIssueMapper {
     return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.columns });
   }
 
-  private findSupportDiscoveredBy(jira: JiraIssueDto): string {
-    return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_DISCOVERED_BY]) ?? 'Development Team';
+  private findSupportDiscoveredBy(jira: JiraIssueDto): string | null {
+    // return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_DISCOVERED_BY]) ?? 'Development Team';
+    //
+    return this.getCustomFieldsValue({
+      fields: [jira.fields[Fields.SUPPORT_DISCOVERED_BY], jira.fields[Fields.SUPPORT_DISCOVERED_BY_02], jira.fields[Fields.SUPPORT_DISCOVERED_BY_03]],
+      fallback: 'Development Team',
+    });
   }
 
   private findSupportResolutionType(jira: JiraIssueDto): string | null {
@@ -90,10 +95,14 @@ export class JiraIssueMapper {
       return 'Bug';
     }
 
-    return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_RESOLUTION_TYPE]);
+    // return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_RESOLUTION_TYPE]);
+    //
+    return this.getCustomFieldsValue({
+      fields: [jira.fields[Fields.SUPPORT_RESOLUTION_TYPE], jira.fields[Fields.SUPPORT_RESOLUTION_TYPE_02], jira.fields[Fields.SUPPORT_RESOLUTION_TYPE_03]],
+    });
   }
 
-  private getCustomFieldsValue({ fields, fallback }: { fields: Array<JiraIssueCustomField | null | undefined>; fallback: string }): string {
+  private getCustomFieldsValue({ fields, fallback }: { fields: Array<JiraIssueCustomField | null | undefined>; fallback?: string }): string | null {
     for (const field of fields) {
       const value = this.getCustomFieldValue(field);
 
@@ -102,7 +111,7 @@ export class JiraIssueMapper {
       }
     }
 
-    return fallback;
+    return fallback ?? null;
   }
 
   private getCustomFieldValue(field: JiraIssueCustomField | null | undefined): string | null {

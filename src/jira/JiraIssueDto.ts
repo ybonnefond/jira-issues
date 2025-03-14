@@ -91,7 +91,11 @@ export interface JiraIssueDto {
     // Total Time Spent
     [Fields.AGGREGATE_TIME_SPENT]: number;
     [Fields.SUPPORT_DISCOVERED_BY]: JiraIssueCustomField | null | undefined;
+    [Fields.SUPPORT_DISCOVERED_BY_02]: JiraIssueCustomField | null | undefined;
+    [Fields.SUPPORT_DISCOVERED_BY_03]: JiraIssueCustomField | null | undefined;
     [Fields.SUPPORT_RESOLUTION_TYPE]: JiraIssueCustomField | null | undefined;
+    [Fields.SUPPORT_RESOLUTION_TYPE_02]: JiraIssueCustomField | null | undefined;
+    [Fields.SUPPORT_RESOLUTION_TYPE_03]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_01]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_02]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_03]: JiraIssueCustomField | null | undefined;
