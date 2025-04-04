@@ -212,7 +212,11 @@ export class Issue {
       [Columns.STATUS]: this.props.status,
       [Columns.SUMMARY]: this.props.summary,
       [Columns.ESTIMATION]: this.props.estimation,
+
       [Columns.TIME_SPENT]: this.props.totalTimeSpent > 0 ? this.props.totalTimeSpent : null,
+      [Columns.TIME_SPENT_HOURS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInHours(this.props.totalTimeSpent * 1000) : null,
+      [Columns.TIME_SPENT_DAYS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInRoundedDaysBusinessHours(this.props.totalTimeSpent * 1000) : null,
+
       [Columns.REPORTER]: this.props.reporter.name,
       [Columns.ASSIGNEE]: assignee instanceof User ? assignee.getName() : null,
       [Columns.ASSIGNEE_SENIORITY]: assignee instanceof User ? assignee.getSeniority() : null,
