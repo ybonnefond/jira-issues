@@ -77,28 +77,33 @@ export class TimeUtil {
     return `Q${format(date, 'yyyy-QQQ')}`;
   }
 
-  public static toDurationInRoundedDays24h(durationMs: number | null): number | null {
-    return this.toDurationInRoundedDays(durationMs, DAY_HOURS);
+  public static toDurationInRoundedDays24h(durationMs: number | null, { roundToHalfDay }: { roundToHalfDay: boolean } = { roundToHalfDay: true }): number | null {
+    return this.toDurationInRoundedDays(durationMs, { hoursInADay: DAY_HOURS, roundToHalfDay });
   }
 
-  public static toDurationInRoundedDaysBusinessHours(durationMs: number | null): number | null {
-    return this.toDurationInRoundedDays(durationMs, WORK_DAY_HOURS);
+  public static toDurationInRoundedDaysBusinessHours(durationMs: number | null, { roundToHalfDay }: { roundToHalfDay: boolean } = { roundToHalfDay: true }): number | null {
+    return this.toDurationInRoundedDays(durationMs, { hoursInADay: WORK_DAY_HOURS, roundToHalfDay });
   }
 
-  private static toDurationInRoundedDays(durationMs: number | null, hoursInADay: number): number | null {
+  private static toDurationInRoundedDays(durationMs: number | null, { hoursInADay, roundToHalfDay }: { hoursInADay: number; roundToHalfDay: boolean }): number | null {
     if (durationMs === null) {
       return null;
     }
 
-    // Calculate total workdays rounded to the nearest half-day
     const durationDays = durationMs / hoursInADay;
-    const duration = Math.round(durationDays * 2) / 2; // Round to nearest half-day
+    if (roundToHalfDay) {
+      // Calculate total workdays rounded to the nearest half-day
+      const duration = Math.round(durationDays * 2) / 2; // Round to nearest half-day
 
-    if (duration === 0 && durationMs > 0) {
-      return 0.5;
+      if (duration === 0 && durationMs > 0) {
+        return 0.5;
+      }
+
+      return duration;
     }
 
-    return duration;
+    // round to 0.1 day
+    return Math.round(durationDays * 100) / 100;
   }
 
   public static toDurationInSeconds(durationMs: number | null): number | null {
@@ -109,18 +114,23 @@ export class TimeUtil {
     return Math.round(durationMs / 1000);
   }
 
-  public static toDurationInHours(durationMs: number | null): number | null {
+  public static toDurationInHours(durationMs: number | null, { roundToHalfHour }: { roundToHalfHour?: boolean } = {}): number | null {
     if (durationMs === null) {
       return null;
     }
 
     const durationHours = durationMs / ONE_HOUR;
-    const duration = Math.round(durationHours * 2) / 2; // Round to nearest half-hour
 
-    if (duration === 0 && durationMs > 0) {
-      return 0.5;
+    if (roundToHalfHour === true) {
+      const duration = Math.round(durationHours * 2) / 2; // Round to nearest half-hour
+
+      if (duration === 0 && durationMs > 0) {
+        return 0.5;
+      }
+
+      return duration;
     }
 
-    return duration;
+    return Math.round(durationHours * 10) / 10; // round to 0.1 hour
   }
 }

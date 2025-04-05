@@ -214,8 +214,8 @@ export class Issue {
       [Columns.ESTIMATION]: this.props.estimation,
 
       [Columns.TIME_SPENT]: this.props.totalTimeSpent > 0 ? this.props.totalTimeSpent : null,
-      [Columns.TIME_SPENT_HOURS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInHours(this.props.totalTimeSpent * 1000) : null,
-      [Columns.TIME_SPENT_DAYS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInRoundedDaysBusinessHours(this.props.totalTimeSpent * 1000) : null,
+      [Columns.TIME_SPENT_HOURS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInHours(this.props.totalTimeSpent * 1000, { roundToHalfHour: false }) : null,
+      [Columns.TIME_SPENT_DAYS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInRoundedDaysBusinessHours(this.props.totalTimeSpent * 1000, { roundToHalfDay: false }) : null,
 
       [Columns.REPORTER]: this.props.reporter.name,
       [Columns.ASSIGNEE]: assignee instanceof User ? assignee.getName() : null,
