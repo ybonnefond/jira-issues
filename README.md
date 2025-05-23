@@ -15,7 +15,7 @@ You can generate an API key for your Atlassian account by following these steps:
 https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 
 ### Google credentials
-Create a file google-service-account.json at project root with the data from 1password secure note:
+Create a file `google-service-account.json` at project root with the data from 1password secure note:
 ```
 VGP - jira issue spreadsheet updater google credentials
 ```
