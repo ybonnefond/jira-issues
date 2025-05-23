@@ -48,6 +48,15 @@ export class Configuration {
     batchSize: number;
   };
 
+  public readonly google: {
+    credentialFile: string;
+    spreadsheet: {
+      id: string;
+      epicSheet: string;
+      issuesSheet: string;
+    };
+  };
+
   public readonly statusMap: StatusMap;
   public readonly issueTypeMapper: IssueTypeMapper;
 
@@ -124,6 +133,11 @@ export class Configuration {
         });
       }),
     );
+
+    this.google = {
+      credentialFile: resolve(__dirname, '..', env.get('GOOGLE_CREDENTIAL_FILE').default('google-service-account.json').asString()),
+      spreadsheet: configJson.google.spreadsheet,
+    };
   }
 
   public static fromEnv(): Configuration {

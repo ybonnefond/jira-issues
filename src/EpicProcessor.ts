@@ -7,13 +7,14 @@ import * as console from 'console';
 import { Configuration } from './Configuration';
 import chalk from 'chalk';
 import { Changelogs } from './entities/Changelogs';
+import { Writer } from './Writer';
 
 export class EpicProcessor {
   private readonly jira: JiraApi;
-  private readonly writer: CsvWriter;
+  private readonly writer: Writer;
   private readonly configuration: Configuration;
 
-  constructor({ jira, writer, configuration }: { jira: JiraApi; writer: CsvWriter; configuration: Configuration }) {
+  constructor({ jira, writer, configuration }: { jira: JiraApi; writer: Writer; configuration: Configuration }) {
     this.jira = jira;
     this.writer = writer;
     this.configuration = configuration;
@@ -35,14 +36,18 @@ export class EpicProcessor {
       process: async (batch: Issue[]) => {
         total += batch.length;
 
+        const rows = [];
         for (const issue of batch) {
           const changelogs = await this.loadChangelogs(issue.getKey());
 
           issue.setChangelogs(new Changelogs({ changelogs, statusMap: this.configuration.statusMap, createdAt: issue.getCreatedAt() }));
 
           epics.set(issue.getKey(), issue);
-          this.writer.write(issue.toRow());
+          rows.push(issue.toRow());
         }
+
+        console.log(`Writing epics batch: ${rows.length} rows`);
+        await this.writer.write(rows);
 
         console.log('');
       },

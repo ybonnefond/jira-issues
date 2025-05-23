@@ -195,5 +195,13 @@
     pullRequests: {
       closedFrom: "2024-01-01",
     }
+  },
+  google: {
+    spreadsheet: {
+      id: "1NSwbxjo7rhirwbWRrlXgv4AG8S4g6mU__239aio37k4",
+      epicSheet: "epics",
+      issuesSheet: "issues",
+    },
+
   }
 }

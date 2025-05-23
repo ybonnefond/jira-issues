@@ -7,13 +7,14 @@ import * as console from 'console';
 import { Configuration } from './Configuration';
 import chalk from 'chalk';
 import { Changelogs } from './entities/Changelogs';
+import { Writer } from './Writer';
 
 export class IssueProcessor {
   private readonly jira: JiraApi;
-  private readonly writer: CsvWriter;
+  private readonly writer: Writer;
   private readonly configuration: Configuration;
 
-  constructor({ jira, writer, configuration }: { jira: JiraApi; writer: CsvWriter; configuration: Configuration }) {
+  constructor({ jira, writer, configuration }: { jira: JiraApi; writer: Writer; configuration: Configuration }) {
     this.jira = jira;
     this.writer = writer;
     this.configuration = configuration;
@@ -34,6 +35,7 @@ export class IssueProcessor {
       process: async (batch: Issue[]) => {
         total += batch.length;
 
+        const rows = [];
         for (const issue of batch) {
           const changelogs = await this.loadChangelogs(issue.getKey());
 
@@ -47,9 +49,11 @@ export class IssueProcessor {
             }
           }
 
-          const row = issue.toRow();
-          this.writer.write(row);
+          rows.push(issue.toRow());
         }
+
+        console.log(`Writing issue batch: ${rows.length} rows`);
+        await this.writer.write(rows);
 
         console.log('');
       },
@@ -57,7 +61,7 @@ export class IssueProcessor {
 
     console.log(`Total: ${total} issues processed`);
 
-    this.writer.end();
+    await this.writer.end();
     console.log('');
   }
 

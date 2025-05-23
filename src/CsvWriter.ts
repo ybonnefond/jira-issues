@@ -2,8 +2,9 @@ import { createWriteStream, existsSync } from 'fs';
 import { unlink, mkdir } from 'fs/promises';
 import { CsvFormatterStream, format } from '@fast-csv/format';
 import { Configuration } from './Configuration';
+import { Writer } from './Writer';
 
-export class CsvWriter {
+export class CsvWriter implements Writer {
   private readonly configuration: Configuration;
   private readonly filename: string;
   private csv: CsvFormatterStream<any, any> | null = null;
@@ -27,11 +28,13 @@ export class CsvWriter {
     this.csv.pipe(fileStream);
   }
 
-  public write(row: Record<string, unknown>) {
-    this.getCsv().write(row);
+  public async write(rows: Record<string, unknown>[]) {
+    for (const row of rows) {
+      this.getCsv().write(row);
+    }
   }
 
-  public end() {
+  public async end() {
     this.getCsv().end();
   }
 

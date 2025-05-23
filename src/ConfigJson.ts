@@ -69,4 +69,11 @@ export type ConfigJson = {
       closedFrom: string;
     };
   };
+  google: {
+    spreadsheet: {
+      id: string;
+      epicSheet: string;
+      issuesSheet: string;
+    };
+  };
 };
