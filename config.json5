@@ -1,0 +1,199 @@
+{
+  "users": [
+    {
+      "name": "Nicolas Lantoing",
+      "githubHandle": "nlantoing",
+      "jiraHandle": "Nicolas Lantoing",
+      "seniority": "senior",
+      "role": "fullstack"
+    },
+    {
+      "name": "Thomas Buée",
+      "githubHandle": "ThomasBUEE",
+      "jiraHandle": "Thomas Buée",
+      "seniority": "senior",
+      "role": "manager"
+    },
+    {
+      "name": "Thierry Jacoel",
+      "githubHandle": "thierryjacoel",
+      "jiraHandle": "Thierry Jacoel",
+      "seniority": "senior",
+      "role": "fullstack"
+    },
+    {
+      "name": "Bruno Rodrigues",
+      "githubHandle": "br-v-io",
+      "jiraHandle": "Bruno Rodrigues",
+      "seniority": "senior",
+      "role": "backend"
+    },
+    {
+      "name": "Jeremy Bchiri",
+      "githubHandle": "Jeremy-Bidshake",
+      "jiraHandle": "Jeremy Bchiri",
+      "seniority": "experienced",
+      "role": "fullstack"
+    },
+    {
+      "name": "Ben Laor",
+      "githubHandle": "benBidShake",
+      "jiraHandle": "Ben Laor",
+      "seniority": "experienced",
+      "role": "fullstack"
+    },
+    {
+      "name": "Malik Baba Aïssa",
+      "githubHandle": "malikba",
+      "jiraHandle": "Malik Baba Aïssa",
+      "seniority": "senior",
+      "role": "frontend"
+    },
+    {
+      "name": "Yannick Bonnefond",
+      "githubHandle": "yannick-bonnefond",
+      "jiraHandle": "Yannick Bonnefond",
+      "seniority": "senior",
+      "role": "manager"
+    },
+    {
+      "name": "Thomas Nusbaum",
+      "githubHandle": "thomasnusbaum",
+      "jiraHandle": "Thomas Nusbaum",
+      "seniority": "senior",
+      "role": "backend"
+    },
+    {
+      "name": "Nathan Quentel",
+      "githubHandle": "nathanqtlv",
+      "jiraHandle": "Nathan Quentel",
+      "seniority": "experienced",
+      "role": "fullstack"
+    },
+    {
+      "name": "Julien Vallé",
+      "githubHandle": "valle-julien",
+      "jiraHandle": "Julien Vallé",
+      "seniority": "senior",
+      "role": "fullstack"
+    }
+  ],
+  "output": {
+    "issues": {
+      // ⚠️ CHANGING THIS ORDER WILL BREAK THE GOOGLE SHEETS ⚠️
+      "columns": [
+        "ID",
+        "TYPE",
+        "PROJECT_KEY",
+        "PROJECT_NAME",
+        "KEY",
+        "STATUS",
+        "SUMMARY",
+        "ESTIMATION",
+        "TIME_SPENT",
+        "REPORTER",
+        "ASSIGNEE",
+        "PRIORITY",
+        "EPIC_KEY",
+        "EPIC_SUMMARY",
+        "EPIC_LABEL",
+        "LINK",
+        "SUPPORT_DISCOVERED_BY",
+        "SUPPORT_RESOLUTION_TYPE",
+        "SUPPORT_PRODUCT",
+        "IS_STARTED",
+        "IS_DELIVERED",
+        "IS_IN_PROGRESS",
+        "CREATED_AT",
+        "CREATED_SPRINT",
+        "CREATED_WEEK",
+        "CREATED_MONTH",
+        "CREATED_QUARTER",
+        "STARTED_AT",
+        "STARTED_SPRINT",
+        "STARTED_WEEK",
+        "STARTED_MONTH",
+        "STARTED_QUARTER",
+        "RESOLVED_AT",
+        "RESOLVED_SPRINT",
+        "RESOLVED_WEEK",
+        "RESOLVED_MONTH",
+        "RESOLVED_QUARTER",
+        "LEAD_TIME_SECONDS",
+        "LEAD_TIME_HOURS",
+        "LEAD_TIME_DAYS",
+        "LEAD_TIME_BUSINESS_SECONDS",
+        "LEAD_TIME_BUSINESS_HOURS",
+        "LEAD_TIME_BUSINESS_DAYS",
+        "EPIC_STATUS",
+        "EPIC_LINK",
+        "LEAD_TIME_DAYS_BUCKET",
+        "LEAD_TIME_BUSINESS_DAYS_BUCKET",
+        "TYPE_NORMALIZED",
+        "STATUS_DURATION_DAYS_TODO",
+        "STATUS_BUSINESS_DURATION_DAYS_TODO",
+        "STATUS_DURATION_DAYS_HOLD",
+        "STATUS_BUSINESS_DURATION_DAYS_HOLD",
+        "STATUS_DURATION_DAYS_IN_PROGRESS",
+        "STATUS_BUSINESS_DURATION_DAYS_IN_PROGRESS",
+        "STATUS_DURATION_DAYS_QA",
+        "STATUS_BUSINESS_DURATION_DAYS_QA",
+        "ASSIGNEE_SENIORITY",
+        "ASSIGNEE_ROLE",
+        "TIME_SPENT_HOURS",
+        "TIME_SPENT_DAYS"
+      ]
+    }
+  },
+  "jira":{
+    resolvedIssueFrom:"2023-04-13",
+    issueTypes: ["Bug","Spike","Story","Support","Task","Tech","Maturation","Study","Incident","subTaskIssueTypes()"],
+    projects: [
+      {
+        key: "VGP",
+        boardId: 175,
+      },
+      {
+        key: "VGPA",
+        boardId: 177,
+      },
+      {
+        key: "VGPB",
+        boardId: 181,
+      }
+    ],
+    issues: {
+      deliveredStatuses: ['Done','Deployed'],
+      statusMapping: {
+        TODO: ["DRAFT","TODO"],
+        IN_PROGRESS: ["INPROGRESS"],
+        QA: ["QA","VALIDATED"],
+        HOLD: ["HOLD"],
+        DONE: ["DONE","ABANDONED","DROPPED"],
+      },
+      typeMapping: {
+        Support: ["Support", "Incident"],
+        Maturation: ["Maturation", "Study", "Spike"],
+        Tech: ["Tech", "Task"]
+      },
+      incidents: {
+        defaultProduct: "VGP",
+      }
+    },
+    sprints: {
+      // Duration in days
+      duration: 14,
+      initialSprint: {
+        startDate: '2024-09-12',
+        number: 38,
+      }
+    },
+  },
+  github: {
+    organization: "VoodooTeam",
+    repositories: ["vgp-campaign-service","vgp-asset-service","vgp-asset-workers","vgp-bridges","vgp-main-ui", "vgp-playable-service"],
+    pullRequests: {
+      closedFrom: "2024-01-01",
+    }
+  }
+}

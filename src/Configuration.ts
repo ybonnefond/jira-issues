@@ -2,17 +2,20 @@ import { join, resolve } from 'path';
 
 import dotenv from 'dotenv';
 import * as envVar from 'env-var';
+import JSON5 from 'json5';
+
 import { Sprints } from './Sprints';
 import { parse } from 'date-fns';
 import { Columns } from './Columns';
 import { Statuses } from './jira/Statuses';
 import { StatusMap } from './StatusMap';
-import configJson from '../config.json';
 import { Users } from './entities/Users';
 import { User } from './entities/User';
 import { parseUserRole } from './entities/UserRole';
 import { parseSeniority } from './entities/Seniority';
 import { IssueTypeMapper } from './IssueTypeMapper';
+import { readFileSync } from 'fs';
+import { ConfigJson, ConfigUser } from './ConfigJson';
 
 export type GithubAuthor = { handle: string; name: string };
 
@@ -51,17 +54,20 @@ export class Configuration {
   public readonly users: Users;
 
   constructor(envValues: NodeJS.ProcessEnv = process.env) {
+    const rawConfig = readFileSync(resolve(__dirname, '..', 'config.json5'), 'utf-8');
+    const configJson = JSON5.parse<ConfigJson>(rawConfig);
+
     const env = envVar.from(envValues);
 
     this.root = env.get('ROOT').required().asString();
     const output = env.get('OUTPUT').default('output').asString();
     this.output = output[0] === '/' ? output : join(this.root, output);
-    this.columns = env.get('OUTPUT_COLUMNS').required().asArray(',') as Columns[];
-    this.supportProductDefault = env.get('SUPPORT_PRODUCT_DEFAULT').required().asString();
+    this.columns = configJson.output.issues.columns;
+    this.supportProductDefault = configJson.jira.issues.incidents.defaultProduct;
 
-    const sprintDuration = env.get('SPRINT_DURATION').required().asIntPositive();
-    const sprintNumber = env.get('SPRINT_NUMBER').required().asIntPositive();
-    const sprintFirstDay = env.get('SPRINT_FIRST_DAY').required().asString();
+    const sprintDuration = configJson.jira.sprints.duration;
+    const sprintNumber = configJson.jira.sprints.initialSprint.number;
+    const sprintFirstDay = configJson.jira.sprints.initialSprint.startDate;
 
     this.sprints = Sprints.fromAnySprint({
       sprintDuration,
@@ -69,43 +75,43 @@ export class Configuration {
       sprintFirstDay: parse(sprintFirstDay, 'yyyy-MM-dd', new Date()),
     });
 
-    const projectKey = env.get('JIRA_PROJECT_KEY').required().asString();
-    const resolvedIssuesFrom = env.get('JIRA_RESOLVED_ISSUES_FROM').required().asString();
-    const issueTypes = env.get('JIRA_ISSUE_TYPES').required().asString();
-    const deliveredStatuses = env.get('JIRA_DELIVERED_STATUSES').required().asString();
+    // const projectKey = env.get('JIRA_PROJECT_KEY').required().asString();
+    // const resolvedIssuesFrom = env.get('JIRA_RESOLVED_ISSUES_FROM').required().asString();
+    // const issueTypes = env.get('JIRA_ISSUE_TYPES').required().asString();
+    // const deliveredStatuses = env.get('JIRA_DELIVERED_STATUSES').required().asString();
 
-    this.deliveredStatuses = deliveredStatuses.split(',').map((status) => status.toLowerCase());
+    this.deliveredStatuses = configJson.jira.issues.deliveredStatuses.map((status) => status.toLowerCase());
 
     this.jira = {
       origin: env.get('JIRA_ORIGIN').default('https://voodooio.atlassian.net').asString(),
       username: env.get('JIRA_USERNAME').required().asString(),
       apiKey: env.get('JIRA_API_KEY').required().asString(),
-      boardIds: env.get('JIRA_BOARD_IDS').required().asString().split(','),
-      projectKey,
-      resolvedIssuesFrom,
-      issueTypes,
+      boardIds: configJson.jira.projects.map(({ boardId }) => boardId),
+      projectKey: configJson.jira.projects.map(({ key }) => key).join(','),
+      resolvedIssuesFrom: configJson.jira.resolvedIssueFrom,
+      issueTypes: configJson.jira.issueTypes.join(','),
       batchSize: 100,
     };
 
     this.github = {
       origin: env.get('GITHUB_ORIGIN').default('https://api.github.com').asString(),
       token: env.get('GITHUB_TOKEN').required().asString(),
-      organization: env.get('GITHUB_ORGANIZATION').required().asString(),
-      authors: new Authors((env.get('GITHUB_AUTHORS').required().asArray(',') as string[]).map(parseAuthor)),
-      prClosedFrom: parse(env.get('GITHUB_PR_CLOSED_FROM').required().asString(), 'yyyy-MM-dd', new Date()),
-      repositories: env.get('GITHUB_REPOSITORIES').required().asArray(',') as string[],
+      organization: configJson.github.organization,
+      authors: new Authors(configJson.users.map((user: ConfigUser) => ({ handle: user.githubHandle, name: user.name }))),
+      prClosedFrom: parse(configJson.github.pullRequests.closedFrom, 'yyyy-MM-dd', new Date()),
+      repositories: configJson.github.repositories,
       batchSize: 100,
     };
 
     this.statusMap = {
-      [Statuses.TODO]: env.get('STATUS_TODO').required().asArray(',') as string[],
-      [Statuses.IN_PROGRESS]: env.get('STATUS_IN_PROGRESS').required().asArray(',') as string[],
-      [Statuses.HOLD]: env.get('STATUS_HOLD').required().asArray(',') as string[],
-      [Statuses.QA]: env.get('STATUS_QA').required().asArray(',') as string[],
-      [Statuses.DONE]: env.get('STATUS_DONE').required().asArray(',') as string[],
+      [Statuses.TODO]: configJson.jira.issues.statusMapping.TODO,
+      [Statuses.IN_PROGRESS]: configJson.jira.issues.statusMapping.IN_PROGRESS,
+      [Statuses.HOLD]: configJson.jira.issues.statusMapping.HOLD,
+      [Statuses.QA]: configJson.jira.issues.statusMapping.QA,
+      [Statuses.DONE]: configJson.jira.issues.statusMapping.DONE,
     };
 
-    this.issueTypeMapper = IssueTypeMapper.fromString(env.get('ISSUE_TYPES').required().asString());
+    this.issueTypeMapper = new IssueTypeMapper(configJson.jira.issues.typeMapping);
 
     this.users = new Users(
       configJson.users.map((userData) => {
@@ -126,17 +132,6 @@ export class Configuration {
     dotenv.config({ path: join(ROOT, '.env') });
     return new Configuration(process.env);
   }
-}
-
-function parseAuthor(author: string) {
-  const regex = /^([^()]+)\(([^)]+)\)$/;
-  const match = author.match(regex);
-
-  if (!match) {
-    throw new Error(`Invalid author format: ${author}`);
-  }
-
-  return { handle: match[1], name: match[2] };
 }
 
 export class Authors {
