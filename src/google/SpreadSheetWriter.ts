@@ -1,14 +1,18 @@
 import { google, sheets_v4 } from 'googleapis';
 import { Configuration } from '../Configuration';
 import { Writer } from '../Writer';
+import { Columns } from '../Columns';
+import { ConfigColumn } from '../ConfigJson';
 
 export class SpreadSheetWriter implements Writer {
   private readonly spreadsheetId: string;
   private readonly sheetName: string;
   private sheetsApi: sheets_v4.Sheets;
+  private sheetId: number | null;
   private headers: string[];
+  private readonly columns: Record<Columns, ConfigColumn>;
 
-  constructor({ configuration, sheetName, headers }: { configuration: Configuration; sheetName: string; headers: string[] }) {
+  constructor({ configuration, sheetName, columns }: { configuration: Configuration; sheetName: string; columns: Record<Columns, ConfigColumn> }) {
     this.spreadsheetId = configuration.google.spreadsheet.id;
     this.sheetName = sheetName;
 
@@ -20,7 +24,9 @@ export class SpreadSheetWriter implements Writer {
       }),
     });
 
-    this.headers = headers;
+    this.sheetId = null;
+    this.columns = columns;
+    this.headers = Object.keys(columns);
   }
 
   public async begin(): Promise<void> {
@@ -56,6 +62,62 @@ export class SpreadSheetWriter implements Writer {
   }
 
   public async end(): Promise<void> {
-    // NOOP
+    this.formatColumns();
+  }
+
+  private async formatColumns() {
+    const sheetId = await this.getSheetId();
+    const requests = Object.entries(this.columns).map(([columnName, columnConfig], index) => {
+      return {
+        repeatCell: {
+          range: {
+            sheetId,
+            startColumnIndex: index, // Column D
+            endColumnIndex: index + 1,
+          },
+          cell: {
+            userEnteredFormat: {
+              numberFormat: {
+                type: columnConfig.format.type,
+                pattern: columnConfig.format.pattern,
+              },
+            },
+          },
+          fields: 'userEnteredFormat.numberFormat',
+        },
+      };
+    });
+
+    await this.sheetsApi.spreadsheets.batchUpdate({
+      spreadsheetId: this.spreadsheetId,
+      requestBody: {
+        requests,
+      },
+    });
+  }
+
+  public async getSheetId(): Promise<number> {
+    if (this.sheetId !== null) {
+      return this.sheetId;
+    }
+
+    const sheetMeta = await this.sheetsApi.spreadsheets.get({
+      spreadsheetId: this.spreadsheetId,
+    });
+
+    const sheets = sheetMeta.data.sheets;
+    if (!sheets) {
+      throw new Error('No sheets found in spreadsheet metadata');
+    }
+
+    const yourSheet = sheets.find((s) => s.properties?.title === this.sheetName);
+
+    if (typeof yourSheet?.properties?.sheetId !== 'number') {
+      throw new Error(`Sheet with name "${this.sheetName}" not found`);
+    }
+
+    this.sheetId = yourSheet.properties.sheetId;
+
+    return this.sheetId;
   }
 }

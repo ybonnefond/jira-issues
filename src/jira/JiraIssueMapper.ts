@@ -78,7 +78,7 @@ export class JiraIssueMapper {
       }
     }
 
-    return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.columns });
+    return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.headers });
   }
 
   private findSupportDiscoveredBy(jira: JiraIssueDto): string | null {

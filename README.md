@@ -30,3 +30,13 @@ Or from GCP,
 ```bash
 npm run start
 ```
+
+## Schedule the script
+
+```bash
+crontab -e
+```
+
+```
+0 0 * * * /path/to/jira-issues/bin/run.sh >> /path/to/jira-issues.log 2>&1
+```

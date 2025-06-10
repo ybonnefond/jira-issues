@@ -25,16 +25,17 @@ async function main() {
     writer: new SpreadSheetWriter({
       configuration,
       sheetName: configuration.google.spreadsheet.issuesSheet,
-      headers: configuration.columns,
+      columns: configuration.columns,
     }),
   });
+
   const epicsProcessor = new EpicProcessor({
     configuration,
     jira,
     writer: new SpreadSheetWriter({
       configuration,
       sheetName: configuration.google.spreadsheet.epicSheet,
-      headers: configuration.columns,
+      columns: configuration.columns,
     }),
   });
 

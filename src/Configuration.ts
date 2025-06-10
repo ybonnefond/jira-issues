@@ -15,7 +15,7 @@ import { parseUserRole } from './entities/UserRole';
 import { parseSeniority } from './entities/Seniority';
 import { IssueTypeMapper } from './IssueTypeMapper';
 import { readFileSync } from 'fs';
-import { ConfigJson, ConfigUser } from './ConfigJson';
+import { ConfigColumn, ConfigJson, ConfigUser } from './ConfigJson';
 
 export type GithubAuthor = { handle: string; name: string };
 
@@ -24,7 +24,8 @@ export class Configuration {
   public readonly output: string;
   public deliveredStatuses: string[];
   public sprints: Sprints;
-  public columns: Columns[];
+  public columns: Record<Columns, ConfigColumn>;
+  public headers: Columns[];
   public supportProductDefault: string;
 
   public readonly jira: {
@@ -72,6 +73,7 @@ export class Configuration {
     const output = env.get('OUTPUT').default('output').asString();
     this.output = output[0] === '/' ? output : join(this.root, output);
     this.columns = configJson.output.issues.columns;
+    this.headers = Object.keys(this.columns) as Columns[];
     this.supportProductDefault = configJson.jira.issues.incidents.defaultProduct;
 
     const sprintDuration = configJson.jira.sprints.duration;

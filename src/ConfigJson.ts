@@ -10,9 +10,13 @@ export type ConfigUser = {
   role: UserRole;
 };
 
+export type ConfigColumn = {
+  format: { type: string; pattern?: string };
+};
+
 export type ConfigOutput = {
   issues: {
-    columns: Columns[];
+    columns: Record<Columns, ConfigColumn>;
   };
 };
 
