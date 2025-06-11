@@ -65,6 +65,21 @@ export class SpreadSheetWriter implements Writer {
     this.formatColumns();
   }
 
+  private getPattern(config: ConfigColumn) {
+    if (config.format.pattern) {
+      return config.format.pattern;
+    }
+
+    switch (config.format.type) {
+      case 'DATE':
+        return 'YYYY-MM-DD';
+      case 'NUMBER':
+        return '0.##';
+      default:
+        return undefined;
+    }
+  }
+
   private async formatColumns() {
     const sheetId = await this.getSheetId();
     const requests = Object.entries(this.columns).map(([columnName, columnConfig], index) => {
@@ -79,7 +94,7 @@ export class SpreadSheetWriter implements Writer {
             userEnteredFormat: {
               numberFormat: {
                 type: columnConfig.format.type,
-                pattern: columnConfig.format.pattern,
+                pattern: this.getPattern(columnConfig),
               },
             },
           },
