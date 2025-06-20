@@ -77,6 +77,17 @@ export class TimeUtil {
     return `Q${format(date, 'yyyy-QQQ')}`;
   }
 
+  public static toSemesterOfYear(date: Date | null) {
+    if (date === null) {
+      return null;
+    }
+    const year = format(date, 'yyyy');
+    const month = date.getMonth(); // 0-based: Jan = 0, Dec = 11
+    const semester = month < 6 ? '1' : '2';
+
+    return `S${year}-${semester}`;
+  }
+
   public static toDurationInRoundedDays24h(durationMs: number | null, { roundToHalfDay }: { roundToHalfDay: boolean } = { roundToHalfDay: true }): number | null {
     return this.toDurationInRoundedDays(durationMs, { hoursInADay: DAY_HOURS, roundToHalfDay });
   }

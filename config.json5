@@ -142,6 +142,9 @@
         "ASSIGNEE_ROLE":  { format: { type: 'TEXT' } },
         "TIME_SPENT_HOURS":  {format: { type: 'NUMBER' }},
         "TIME_SPENT_DAYS":  {format: { type: 'NUMBER' }},
+        "CREATED_SEMESTER":  { format: { type: 'TEXT' } },
+        "STARTED_SEMESTER":  { format: { type: 'TEXT' } },
+        "RESOLVED_SEMESTER":  { format: { type: 'TEXT' } }
       }
     }
   },

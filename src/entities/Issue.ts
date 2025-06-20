@@ -241,18 +241,21 @@ export class Issue {
       [Columns.CREATED_WEEK]: TimeUtil.toWeekOfYear(createdAt),
       [Columns.CREATED_MONTH]: TimeUtil.toMonthOfYear(createdAt),
       [Columns.CREATED_QUARTER]: TimeUtil.toQuarterOfYear(createdAt),
+      [Columns.CREATED_SEMESTER]: TimeUtil.toSemesterOfYear(createdAt),
 
       [Columns.STARTED_AT]: startedAt,
       [Columns.STARTED_SPRINT]: startedAtSprint ? startedAtSprint.label : null,
       [Columns.STARTED_WEEK]: TimeUtil.toWeekOfYear(startedAt),
       [Columns.STARTED_MONTH]: TimeUtil.toMonthOfYear(startedAt),
       [Columns.STARTED_QUARTER]: TimeUtil.toQuarterOfYear(startedAt),
+      [Columns.STARTED_SEMESTER]: TimeUtil.toSemesterOfYear(startedAt),
 
       [Columns.RESOLVED_AT]: this.props.resolvedAt,
       [Columns.RESOLVED_SPRINT]: resolvedAtSprint ? resolvedAtSprint.label : null,
       [Columns.RESOLVED_WEEK]: TimeUtil.toWeekOfYear(resolvedAt),
       [Columns.RESOLVED_MONTH]: TimeUtil.toMonthOfYear(resolvedAt),
       [Columns.RESOLVED_QUARTER]: TimeUtil.toQuarterOfYear(resolvedAt),
+      [Columns.RESOLVED_SEMESTER]: TimeUtil.toSemesterOfYear(resolvedAt),
 
       [Columns.LEAD_TIME_SECONDS]: TimeUtil.toDurationInSeconds(leadTimeMs),
       [Columns.LEAD_TIME_HOURS]: TimeUtil.toDurationInHours(leadTimeMs),
