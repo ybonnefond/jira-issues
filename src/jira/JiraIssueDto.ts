@@ -103,5 +103,6 @@ export interface JiraIssueDto {
     [Fields.PRODUCT_05]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_06]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_07]: JiraIssueCustomField | null | undefined;
+    [Fields.PRODUCT_PRIORITY]: JiraIssueCustomField | null | undefined;
   };
 }

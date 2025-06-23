@@ -3,6 +3,7 @@ export enum UserRole {
   BACKEND = 'backend',
   FULLSTACK = 'fullstack',
   MANAGER = 'manager',
+  LEAD = 'lead',
 }
 
 export function parseUserRole(value: unknown): UserRole {

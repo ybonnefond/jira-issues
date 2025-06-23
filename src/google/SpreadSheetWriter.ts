@@ -65,6 +65,24 @@ export class SpreadSheetWriter implements Writer {
     this.formatColumns();
   }
 
+  private getFormat(config: ConfigColumn) {
+    return {
+      type: this.getFormatType(config),
+      pattern: this.getPattern(config),
+    };
+  }
+
+  private getFormatType(config: ConfigColumn) {
+    switch (config.format.type) {
+      case 'INTEGER':
+        return 'NUMBER';
+      case 'FLOAT':
+        return 'NUMBER';
+      default:
+        return config.format.type;
+    }
+  }
+
   private getPattern(config: ConfigColumn) {
     if (config.format.pattern) {
       return config.format.pattern;
@@ -73,8 +91,10 @@ export class SpreadSheetWriter implements Writer {
     switch (config.format.type) {
       case 'DATE':
         return 'YYYY-MM-DD';
-      case 'NUMBER':
-        return '0.##';
+      case 'FLOAT':
+        return '0.00';
+      case 'INTEGER':
+        return '0';
       default:
         return undefined;
     }
@@ -92,10 +112,7 @@ export class SpreadSheetWriter implements Writer {
           },
           cell: {
             userEnteredFormat: {
-              numberFormat: {
-                type: columnConfig.format.type,
-                pattern: this.getPattern(columnConfig),
-              },
+              numberFormat: this.getFormat(columnConfig),
             },
           },
           fields: 'userEnteredFormat.numberFormat',

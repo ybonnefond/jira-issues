@@ -32,6 +32,9 @@ export class JiraIssueMapper {
         email: jira.fields.reporter.emailAddress ?? null,
       },
       priority: jira.fields.priority.name,
+      productPriority: this.getCustomFieldsValue({
+        fields: [jira.fields[Fields.PRODUCT_PRIORITY]],
+      }),
       resolution: jira.fields.resolution?.name ?? '',
       epic: null,
       parent: null,
@@ -61,6 +64,7 @@ export class JiraIssueMapper {
           summary: jira.fields.parent.fields.summary,
           status: jira.fields.parent.fields.status.name,
           priority: jira.fields.parent.fields.priority.name,
+          productPriority: null,
           type: jira.fields.parent.fields.issuetype.name,
           assignee: null,
         };
@@ -73,6 +77,7 @@ export class JiraIssueMapper {
           summary: jira.fields.parent.fields.summary,
           status: jira.fields.parent.fields.status.name,
           priority: jira.fields.parent.fields.priority.name,
+          productPriority: null,
           link: `${this.configuration.jira.origin}/browse/${jira.fields.parent.key}`,
         };
       }

@@ -104,6 +104,7 @@ export class JiraApi {
       Fields.KEY,
       Fields.PARENT,
       Fields.PRIORITY,
+      Fields.PRODUCT_PRIORITY,
       Fields.PRODUCT_01,
       Fields.PRODUCT_02,
       Fields.PRODUCT_03,

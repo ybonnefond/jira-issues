@@ -14,6 +14,7 @@ export type IssueProps = {
   summary: string;
   status: string;
   priority: string;
+  productPriority: string | null;
   resolution: string;
   project: {
     key: string;
@@ -26,6 +27,7 @@ export type IssueProps = {
     summary: string;
     status: string;
     priority: string;
+    productPriority: string | null;
     link: string;
   };
   parent: null | {
@@ -34,6 +36,7 @@ export type IssueProps = {
     summary: string;
     status: string;
     priority: string;
+    productPriority: string | null;
     type: string;
     assignee: null | User;
   };
@@ -140,7 +143,11 @@ export class Issue {
   }
 
   public getParentKey() {
-    return this.props.parent?.key ?? null;
+    return this.props.parent?.key ?? this.props.epic?.key ?? null;
+  }
+
+  public getProductPriority() {
+    return this.props.productPriority ?? this.props.epic?.productPriority ?? this.props.parent?.productPriority ?? null;
   }
 
   public getId() {
@@ -174,9 +181,23 @@ export class Issue {
       summary: parent.getSummary(),
       status: parent.getStatus(),
       priority: parent.getPriority(),
+      productPriority: parent.getProductPriority(),
       type: parent.getType(),
       assignee: parent.getAssignee() ?? null,
     };
+
+    if (parent.getType() === 'Epic') {
+      this.props.epic = {
+        link: '',
+        ...(this.props.epic ?? {}),
+        id: parent.getId(),
+        key: parent.getKey(),
+        summary: parent.getSummary(),
+        status: parent.getStatus(),
+        priority: parent.getPriority(),
+        productPriority: parent.getProductPriority(),
+      };
+    }
   }
 
   private getEpicLabel(): string | null {
@@ -275,6 +296,7 @@ export class Issue {
       [Columns.STATUS_BUSINESS_DURATION_DAYS_IN_PROGRESS]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.IN_PROGRESS].businessMilliseconds),
       [Columns.STATUS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.QA].milliseconds),
       [Columns.STATUS_BUSINESS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.QA].businessMilliseconds),
+      [Columns.PRODUCT_PRIORITY]: this.getProductPriority(),
     };
   }
 

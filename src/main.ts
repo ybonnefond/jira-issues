@@ -1,10 +1,6 @@
 import { JiraApi } from './jira/JiraApi';
 import { Configuration } from './Configuration';
-import { CsvWriter } from './CsvWriter';
 import { IssueProcessor } from './IssueProcessor';
-import { EpicProcessor } from './EpicProcessor';
-import { PullRequestProcessor } from './PullRequestProcessor';
-import { GithubApi } from './github/GithubApi';
 import { SpreadSheetWriter } from './google/SpreadSheetWriter';
 
 async function main() {
@@ -19,6 +15,22 @@ async function main() {
   // const commentWriter = new CsvWriter({ configuration, filename: 'pr-comments.csv' });
   // const reviewWriter = new CsvWriter({ configuration, filename: 'pr-reviews.csv' });
 
+  const epicsProcessor = new IssueProcessor({
+    configuration,
+    jira,
+    writer: new SpreadSheetWriter({
+      configuration,
+      sheetName: configuration.google.spreadsheet.epicSheet,
+      columns: configuration.columns,
+    }),
+    label: 'epics',
+    load: async ({ startAt, batchSize, jira }) => {
+      return jira.listEpics({ startAt, maxResults: batchSize });
+    },
+  });
+
+  await epicsProcessor.process();
+
   const issueProcessor = new IssueProcessor({
     configuration,
     jira,
@@ -27,19 +39,13 @@ async function main() {
       sheetName: configuration.google.spreadsheet.issuesSheet,
       columns: configuration.columns,
     }),
+    cache: epicsProcessor.getCache(),
+    label: 'issues',
+    load: async ({ startAt, batchSize, jira }) => {
+      return jira.listIssue({ startAt, maxResults: batchSize });
+    },
   });
 
-  const epicsProcessor = new EpicProcessor({
-    configuration,
-    jira,
-    writer: new SpreadSheetWriter({
-      configuration,
-      sheetName: configuration.google.spreadsheet.epicSheet,
-      columns: configuration.columns,
-    }),
-  });
-
-  await epicsProcessor.process();
   await issueProcessor.process();
 
   // const prProcessor = new PullRequestProcessor({ github, prWriter, commentWriter, reviewWriter, configuration });

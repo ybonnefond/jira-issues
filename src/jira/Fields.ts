@@ -10,6 +10,7 @@ export enum Fields {
   KEY = 'key',
   PARENT = 'parent',
   PRIORITY = 'priority',
+  PRODUCT_PRIORITY = 'customfield_10358',
   PRODUCT_01 = 'customfield_10247',
   PRODUCT_02 = 'customfield_10248',
   PRODUCT_03 = 'customfield_10245',

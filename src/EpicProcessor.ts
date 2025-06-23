@@ -13,6 +13,7 @@ export class EpicProcessor {
   private readonly jira: JiraApi;
   private readonly writer: Writer;
   private readonly configuration: Configuration;
+  private readonly cache = new Map<string, Issue>();
 
   constructor({ jira, writer, configuration }: { jira: JiraApi; writer: Writer; configuration: Configuration }) {
     this.jira = jira;
@@ -25,7 +26,6 @@ export class EpicProcessor {
 
     await this.writer.begin();
     let total = 0;
-    const epics: Map<string, Issue> = new Map();
 
     await batch({
       batchSize: this.configuration.jira.batchSize,
@@ -38,11 +38,11 @@ export class EpicProcessor {
 
         const rows = [];
         for (const issue of batch) {
+          this.cache.set(issue.getKey(), issue);
           const changelogs = await this.loadChangelogs(issue.getKey());
 
           issue.setChangelogs(new Changelogs({ changelogs, statusMap: this.configuration.statusMap, createdAt: issue.getCreatedAt() }));
 
-          epics.set(issue.getKey(), issue);
           rows.push(issue.toRow());
         }
 
@@ -53,12 +53,14 @@ export class EpicProcessor {
       },
     });
 
-    console.log('Epics loaded');
-
     console.log(`Total: ${total} epics processed`);
 
     this.writer.end();
     console.log('');
+  }
+
+  public getCache(): Map<string, Issue> {
+    return this.cache;
   }
 
   private async loadChangelogs(issueIdOrKey: string | number): Promise<Changelog[]> {
