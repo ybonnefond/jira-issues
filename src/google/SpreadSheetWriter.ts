@@ -31,10 +31,7 @@ export class SpreadSheetWriter implements Writer {
 
   public async begin(): Promise<void> {
     // Clear sheet
-    await this.sheetsApi.spreadsheets.values.clear({
-      spreadsheetId: this.spreadsheetId,
-      range: this.sheetName,
-    });
+    await this.clear();
 
     // Write header row
     await this.sheetsApi.spreadsheets.values.update({
@@ -44,6 +41,33 @@ export class SpreadSheetWriter implements Writer {
       requestBody: {
         values: [this.headers],
       },
+    });
+  }
+
+  private async clear() {
+    const sheetId = await this.getSheetId();
+
+    await this.sheetsApi.spreadsheets.batchUpdate({
+      spreadsheetId: this.spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId, // Change this if your target sheet isn't the first one
+                dimension: 'ROWS',
+                startIndex: 1, // Row 2 (0-based index); row 1 is typically headers
+                endIndex: 100000, // Or a very high number to ensure all rows are deleted
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    await this.sheetsApi.spreadsheets.values.clear({
+      spreadsheetId: this.spreadsheetId,
+      range: this.sheetName,
     });
   }
 

@@ -1,6 +1,3 @@
-import { Users } from '../entities/Users';
-import { Sprints } from '../Sprints';
-import { Columns } from '../Columns';
 import { Issue, IssueProps } from '../entities/Issue';
 import { Fields } from './Fields';
 import { toSprint } from './JiraSprintDto';
@@ -49,6 +46,9 @@ export class JiraIssueMapper {
       product: this.getCustomFieldsValue({
         fields: [jira.fields[Fields.PRODUCT_07], jira.fields[Fields.PRODUCT_06], jira.fields[Fields.PRODUCT_05], jira.fields[Fields.PRODUCT_04], jira.fields[Fields.PRODUCT_03], jira.fields[Fields.PRODUCT_02], jira.fields[Fields.PRODUCT_01]],
         fallback: this.configuration.supportProductDefault,
+      }),
+      estimationConfidence: this.getCustomFieldsValue({
+        fields: [jira.fields[Fields.ESTIMATION_CONFIDENCE]],
       }),
     };
 

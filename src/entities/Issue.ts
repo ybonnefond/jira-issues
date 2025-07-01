@@ -50,6 +50,7 @@ export type IssueProps = {
   createdAt: Date;
   sprints: Array<Sprint>;
   estimation: number;
+  estimationConfidence: string | null;
   totalTimeSpent: number;
   supportDiscoveredBy: string | null;
   supportResolutionType: string | null;
@@ -297,6 +298,9 @@ export class Issue {
       [Columns.STATUS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.QA].milliseconds),
       [Columns.STATUS_BUSINESS_DURATION_DAYS_QA]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.QA].businessMilliseconds),
       [Columns.PRODUCT_PRIORITY]: this.getProductPriority(),
+      [Columns.EFFORT_DAYS]: this.getEffortDays(),
+      [Columns.EFFORT]: this.getEffort(),
+      [Columns.ESTIMATION_CONFIDENCE]: this.props.estimationConfidence,
     };
   }
 
@@ -356,5 +360,46 @@ export class Issue {
       default:
         return value;
     }
+  }
+
+  private getEffortDays() {
+    const days = TimeUtil.toDurationInBusinessDays(this.getStartedAt(), this.props.resolvedAt);
+    if (days === null) {
+      return null;
+    }
+
+    // TODO move buffer factor to config
+    return days * (1 - 0.27);
+  }
+
+  private getEffort() {
+    const days = this.getEffortDays();
+    if (days === null) {
+      return null;
+    }
+
+    const buckets = [
+      { maxDays: 1.5, bucket: 1 },
+      { maxDays: 2.5, bucket: 2 },
+      { maxDays: 4, bucket: 3 },
+      { maxDays: 6.5, bucket: 5 },
+      { maxDays: 10, bucket: 8 },
+      { maxDays: 17, bucket: 13 },
+      { maxDays: 27, bucket: 21 },
+      { maxDays: 44, bucket: 34 },
+      { maxDays: null, bucket: 55 },
+    ];
+
+    for (const { maxDays, bucket } of buckets) {
+      if (maxDays === null) {
+        return bucket;
+      }
+
+      if (days <= maxDays) {
+        return bucket;
+      }
+    }
+
+    return 55;
   }
 }

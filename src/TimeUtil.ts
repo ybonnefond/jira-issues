@@ -1,4 +1,4 @@
-import { addDays, endOfDay, format, isWeekend, startOfDay } from 'date-fns';
+import { addDays, endOfDay, format, isWeekend, startOfDay, differenceInBusinessDays, differenceInHours } from 'date-fns';
 
 export const ONE_HOUR = 60 * 60 * 1000;
 export const SIX_HOURS = 6 * ONE_HOUR;
@@ -143,5 +143,28 @@ export class TimeUtil {
     }
 
     return Math.round(durationHours * 10) / 10; // round to 0.1 hour
+  }
+
+  public static toDurationInBusinessDays(start: Date | null, end: Date | null): number | null {
+    if (start === null || end === null) {
+      return null;
+    }
+
+    const durationDays = differenceInBusinessDays(end, start);
+
+    if (durationDays >= 1) {
+      return durationDays;
+    }
+
+    const diffHours = differenceInHours(end, start);
+
+    switch (true) {
+      case diffHours === 0:
+        return 0;
+      case diffHours <= 5:
+        return 0.5;
+      default:
+        return 1;
+    }
   }
 }
