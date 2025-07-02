@@ -88,6 +88,7 @@ export interface JiraIssueDto {
     [Fields.SPRINTS]?: Required<JiraSprintDto>;
     // Estimation
     [Fields.ESTIMATION]: number;
+    [Fields.ESTIMATION_CONFIDENCE]: number | null;
     // Total Time Spent
     [Fields.AGGREGATE_TIME_SPENT]: number;
     [Fields.SUPPORT_DISCOVERED_BY]: JiraIssueCustomField | null | undefined;
@@ -104,6 +105,5 @@ export interface JiraIssueDto {
     [Fields.PRODUCT_06]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_07]: JiraIssueCustomField | null | undefined;
     [Fields.PRODUCT_PRIORITY]: JiraIssueCustomField | null | undefined;
-    [Fields.ESTIMATION_CONFIDENCE]: JiraIssueCustomField | null | undefined;
   };
 }

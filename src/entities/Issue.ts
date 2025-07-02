@@ -6,6 +6,7 @@ import { StringUtils } from '../StringUtils';
 import { TimeUtil, WORK_DAY_HOURS, DAY_HOURS } from '../TimeUtil';
 import { Changelogs } from './Changelogs';
 import { User } from './User';
+import { StoryPoint } from '../ConfigJson';
 
 export type IssueProps = {
   id: number;
@@ -50,7 +51,7 @@ export type IssueProps = {
   createdAt: Date;
   sprints: Array<Sprint>;
   estimation: number;
-  estimationConfidence: string | null;
+  estimationConfidence: number | null;
   totalTimeSpent: number;
   supportDiscoveredBy: string | null;
   supportResolutionType: string | null;
@@ -60,7 +61,7 @@ export type IssueProps = {
 export class Issue {
   private changelogs: Changelogs;
 
-  constructor(private readonly props: IssueProps, private readonly options: { deliveredStatuses: string[]; sprints: Sprints; columns: Columns[] }) {
+  constructor(private readonly props: IssueProps, private readonly options: { deliveredStatuses: string[]; sprints: Sprints; columns: Columns[]; storyPoints: StoryPoint[] }) {
     this.changelogs = new Changelogs({
       changelogs: [],
       statusMap: {
@@ -378,28 +379,14 @@ export class Issue {
       return null;
     }
 
-    const buckets = [
-      { maxDays: 1.5, bucket: 1 },
-      { maxDays: 2.5, bucket: 2 },
-      { maxDays: 4, bucket: 3 },
-      { maxDays: 6.5, bucket: 5 },
-      { maxDays: 10, bucket: 8 },
-      { maxDays: 17, bucket: 13 },
-      { maxDays: 27, bucket: 21 },
-      { maxDays: 44, bucket: 34 },
-      { maxDays: null, bucket: 55 },
-    ];
-
-    for (const { maxDays, bucket } of buckets) {
-      if (maxDays === null) {
-        return bucket;
+    const points = this.options.storyPoints.find(({ points, max, min }, index) => {
+      if (index === this.options.storyPoints.length - 1) {
+        return points;
       }
 
-      if (days <= maxDays) {
-        return bucket;
-      }
-    }
+      return days <= max;
+    });
 
-    return 55;
+    return points ? points.points : null;
   }
 }

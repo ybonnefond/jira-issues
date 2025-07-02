@@ -15,7 +15,7 @@ import { parseUserRole } from './entities/UserRole';
 import { parseSeniority } from './entities/Seniority';
 import { IssueTypeMapper } from './IssueTypeMapper';
 import { readFileSync } from 'fs';
-import { ConfigColumn, ConfigJson, ConfigUser } from './ConfigJson';
+import { ConfigColumn, ConfigJson, ConfigUser, StoryPoint } from './ConfigJson';
 
 export type GithubAuthor = { handle: string; name: string };
 
@@ -27,6 +27,7 @@ export class Configuration {
   public columns: Record<Columns, ConfigColumn>;
   public headers: Columns[];
   public supportProductDefault: string;
+  public storyPoints: StoryPoint[];
 
   public readonly jira: {
     origin: string;
@@ -103,6 +104,10 @@ export class Configuration {
       issueTypes: configJson.jira.issueTypes.join(','),
       batchSize: 100,
     };
+
+    this.storyPoints = configJson.jira.storyPoints;
+
+    this.storyPoints.sort((a, b) => a.points - b.points);
 
     this.github = {
       origin: env.get('GITHUB_ORIGIN').default('https://api.github.com').asString(),

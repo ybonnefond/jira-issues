@@ -20,6 +20,12 @@ export type ConfigOutput = {
   };
 };
 
+export type StoryPoint = {
+  points: number;
+  min: number;
+  max: number;
+};
+
 export type ConfigJira = {
   projects: { key: string; boardId: string }[];
   resolvedIssueFrom: string;
@@ -60,6 +66,7 @@ export type ConfigJira = {
       defaultProduct: string;
     };
   };
+  storyPoints: StoryPoint[];
 };
 
 export type ConfigJson = {

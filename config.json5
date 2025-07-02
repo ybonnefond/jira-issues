@@ -209,6 +209,18 @@
         number: 38,
       }
     },
+    storyPoints: [
+      { points: 1, min:	1, max:	2 },
+      { points: 2, min:	2, max:	3 },
+      { points: 3, min:	3, max:	4 },
+      { points: 5, min:	4, max:	7 },
+      { points: 8, min:	7, max:	10 },
+      { points: 13, min:	10, max:	20 },
+      { points: 21, min:	20, max:	30 },
+      { points: 34, min:	30, max:	45 },
+      { points: 55, min:	45, max:	70 },
+      { points: 89, min:	70, max:	110 }
+    ]
   },
   github: {
     organization: "VoodooTeam",

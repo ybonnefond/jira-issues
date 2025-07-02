@@ -39,6 +39,7 @@ export class JiraIssueMapper {
       createdAt: new Date(jira.fields.created),
       resolvedAt: jira.fields.resolutiondate ? new Date(jira.fields.resolutiondate) : null,
       estimation: jira.fields[Fields.ESTIMATION],
+      estimationConfidence: jira.fields[Fields.ESTIMATION_CONFIDENCE],
       totalTimeSpent: jira.fields.aggregatetimespent,
       sprints: Array.isArray(jira.fields[Fields.SPRINTS]) ? jira.fields[Fields.SPRINTS].map(toSprint) : [],
       supportDiscoveredBy: this.findSupportDiscoveredBy(jira),
@@ -46,9 +47,6 @@ export class JiraIssueMapper {
       product: this.getCustomFieldsValue({
         fields: [jira.fields[Fields.PRODUCT_07], jira.fields[Fields.PRODUCT_06], jira.fields[Fields.PRODUCT_05], jira.fields[Fields.PRODUCT_04], jira.fields[Fields.PRODUCT_03], jira.fields[Fields.PRODUCT_02], jira.fields[Fields.PRODUCT_01]],
         fallback: this.configuration.supportProductDefault,
-      }),
-      estimationConfidence: this.getCustomFieldsValue({
-        fields: [jira.fields[Fields.ESTIMATION_CONFIDENCE]],
       }),
     };
 
@@ -83,7 +81,7 @@ export class JiraIssueMapper {
       }
     }
 
-    return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.headers });
+    return new Issue(issueProps, { deliveredStatuses: this.configuration.deliveredStatuses, sprints: this.configuration.sprints, columns: this.configuration.headers, storyPoints: this.configuration.storyPoints });
   }
 
   private findSupportDiscoveredBy(jira: JiraIssueDto): string | null {
