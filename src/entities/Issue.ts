@@ -234,7 +234,7 @@ export class Issue {
       [Columns.KEY]: this.props.key,
       [Columns.STATUS]: this.props.status,
       [Columns.SUMMARY]: this.props.summary,
-      [Columns.ESTIMATION]: this.props.estimation,
+      [Columns.ESTIMATION]: this.props.estimation ?? 0,
 
       [Columns.TIME_SPENT]: this.props.totalTimeSpent > 0 ? this.props.totalTimeSpent : null,
       [Columns.TIME_SPENT_HOURS]: this.props.totalTimeSpent > 0 ? TimeUtil.toDurationInHours(this.props.totalTimeSpent * 1000, { roundToHalfHour: false }) : null,
@@ -302,6 +302,7 @@ export class Issue {
       [Columns.EFFORT_DAYS]: this.getEffortDays(),
       [Columns.EFFORT]: this.getEffort(),
       [Columns.ESTIMATION_CONFIDENCE]: this.props.estimationConfidence,
+      [Columns.ESTIMATION_MAN_DAYS]: this.getEstimationManDays() ?? 0,
     };
   }
 
@@ -361,6 +362,17 @@ export class Issue {
       default:
         return value;
     }
+  }
+
+  private getEstimationManDays() {
+    const estimation = parseInt(String(this.props.estimation), 10);
+    const confidence = parseInt(String(this.props.estimationConfidence), 10);
+    const storyPoints = this.options.storyPoints.find(({ points }) => points === estimation);
+    if (isNaN(estimation) || isNaN(confidence) || !storyPoints) {
+      return null;
+    }
+
+    return storyPoints.min + (storyPoints.max - storyPoints.min) * ((5 - confidence) / 4);
   }
 
   private getEffortDays() {

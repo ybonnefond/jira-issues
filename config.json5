@@ -162,7 +162,8 @@
         "PRODUCT_PRIORITY":  {format: { type: 'INTEGER' }},
         "EFFORT_DAYS":  {format: { type: 'INTEGER' }},
         "EFFORT":  {format: { type: 'INTEGER' }},
-        "ESTIMATION_CONFIDENCE":  {format: { type: 'INTEGER' }}
+        "ESTIMATION_CONFIDENCE":  {format: { type: 'INTEGER' }},
+        "ESTIMATION_MAN_DAYS":  {format: { type: 'FLOAT' }},
       }
     }
   },
