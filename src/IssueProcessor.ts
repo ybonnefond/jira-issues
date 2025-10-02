@@ -9,7 +9,7 @@ import chalk from 'chalk';
 import { Changelogs } from './entities/Changelogs';
 import { Writer } from './Writer';
 
-export type IssueProcessorLoadFn = ({}: { nextPageToken?: string; batchSize: number; jira: JiraApi }) => Promise<{ items: Issue[]; nextPageToken?: string }>;
+export type IssueProcessorLoadFn = ({}: { nextPageToken?: string; batchSize: number; jira: JiraApi }) => Promise<{ items: Issue[]; nextPageToken?: string; isLast: boolean }>;
 
 export class IssueProcessor {
   private readonly jira: JiraApi;
