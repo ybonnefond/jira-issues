@@ -36,60 +36,64 @@ export class JiraApi {
     this.issueMapper = new JiraIssueMapper({ configuration: this.configuration });
   }
 
-  public async listIssue({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
+  public async listIssue({ nextPageToken, maxResults }: { nextPageToken?: string; maxResults: number }): Promise<{ items: Issue[]; nextPageToken?: string }> {
     const jql = `project IN (${this.configuration.jira.projectKey.split(',')}) AND updated >= ${this.configuration.jira.resolvedIssuesFrom} AND issuetype in (${this.configuration.jira.issueTypes}) order by created DESC`;
 
     const response = await this.axios.request<{ issues: JiraIssueDto[] }>({
       method: 'POST',
-      url: '/rest/api/3/search',
+      url: '/rest/api/3/search/jql',
       data: {
         jql: jql,
-        startAt,
+        nextPageToken: nextPageToken ?? null,
         maxResults: Math.min(maxResults, MAX_RESULTS),
         fields: this.getIssueFields(),
         // fields: ['*all'],
       },
     });
 
-    const issues = [];
+    const items = [];
 
     for (const jiraIssueDto of response.data.issues) {
       const issue = this.issueMapper.toIssue(jiraIssueDto);
 
       if (issue !== null) {
-        issues.push(issue);
+        items.push(issue);
       }
     }
 
-    return issues;
+    return { items };
   }
 
-  public async listEpics({ startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Issue[]> {
+  public async listEpics({ nextPageToken, maxResults }: { nextPageToken?: string; maxResults: number }): Promise<{ items: Issue[]; nextPageToken?: string }> {
     const jql = `project IN (${this.configuration.jira.projectKey.split(',')}) AND updated >= ${this.configuration.jira.resolvedIssuesFrom} AND issuetype in (Epic) order by created DESC`;
 
-    const response = await this.axios.request<{ issues: JiraIssueDto[] }>({
+    const response = await this.axios.request<{ issues: JiraIssueDto[]; isLast: boolean; nextPageToken: string }>({
       method: 'POST',
-      url: '/rest/api/3/search',
+      url: '/rest/api/3/search/jql',
       data: {
         jql: jql,
-        startAt,
+        nextPageToken: nextPageToken ?? null,
         maxResults: Math.min(maxResults, MAX_RESULTS),
         fields: this.getIssueFields(),
         // fields: ['*all'],
       },
     });
 
-    const issues = [];
+    if (response.data.isLast) {
+      console.log('################ LAST');
+    }
+
+    const items = [];
 
     for (const jiraIssueDto of response.data.issues) {
       const issue = this.issueMapper.toIssue(jiraIssueDto);
 
       if (issue !== null) {
-        issues.push(issue);
+        items.push(issue);
       }
     }
 
-    return issues;
+    return { items, nextPageToken: response.data.nextPageToken };
   }
 
   private getIssueFields() {
@@ -130,7 +134,7 @@ export class JiraApi {
     ];
   }
 
-  public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<Changelog[]> {
+  public async getIssueChangelogs(issueIdOrKey: string | number, { startAt, maxResults }: { startAt: number; maxResults: number }): Promise<{ items: Changelog[] }> {
     const response = await this.axios.request<{
       values: JiraIssueChangelogDto[];
     }>({
@@ -142,7 +146,7 @@ export class JiraApi {
       },
     });
 
-    return response.data.values.map(toIssueChangelog);
+    return { items: response.data.values.map(toIssueChangelog) };
   }
 
   public async getIssue(issueIdOrKey: string | number) {

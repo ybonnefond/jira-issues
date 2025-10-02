@@ -9,29 +9,17 @@ import chalk from 'chalk';
 import { Changelogs } from './entities/Changelogs';
 import { Writer } from './Writer';
 
+export type IssueProcessorLoadFn = ({}: { nextPageToken?: string; batchSize: number; jira: JiraApi }) => Promise<{ items: Issue[]; nextPageToken?: string }>;
+
 export class IssueProcessor {
   private readonly jira: JiraApi;
   private readonly writer: Writer;
   private readonly configuration: Configuration;
   private readonly cache = new Map<string, Issue>();
   private readonly label: string;
-  private readonly load: ({}: { startAt: number; batchSize: number; jira: JiraApi }) => Promise<Issue[]>;
+  private readonly load: IssueProcessorLoadFn;
 
-  constructor({
-    jira,
-    writer,
-    configuration,
-    cache,
-    label,
-    load,
-  }: {
-    jira: JiraApi;
-    writer: Writer;
-    configuration: Configuration;
-    cache?: Map<string, Issue>;
-    label: string;
-    load: ({}: { startAt: number; batchSize: number; jira: JiraApi }) => Promise<Issue[]>;
-  }) {
+  constructor({ jira, writer, configuration, cache, label, load }: { jira: JiraApi; writer: Writer; configuration: Configuration; cache?: Map<string, Issue>; label: string; load: IssueProcessorLoadFn }) {
     this.jira = jira;
     this.writer = writer;
     this.configuration = configuration;
@@ -51,9 +39,9 @@ export class IssueProcessor {
 
     await batch({
       batchSize: this.configuration.jira.batchSize,
-      load: async ({ startAt, batchSize }) => {
+      load: async ({ nextPageToken, batchSize, startAt }) => {
         console.log(`Loading ${this.label} batch [${chalk.bold.white(startAt)}, ${chalk.bold.white(startAt + batchSize)}]`);
-        return this.load({ startAt, batchSize, jira: this.jira });
+        return this.load({ nextPageToken, batchSize, jira: this.jira });
       },
       process: async (batch: Issue[]) => {
         total += batch.length;

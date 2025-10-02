@@ -24,8 +24,8 @@ async function main() {
       columns: configuration.columns,
     }),
     label: 'epics',
-    load: async ({ startAt, batchSize, jira }) => {
-      return jira.listEpics({ startAt, maxResults: batchSize });
+    load: async ({ nextPageToken, batchSize, jira }) => {
+      return jira.listEpics({ nextPageToken, maxResults: batchSize });
     },
   });
 
@@ -41,8 +41,8 @@ async function main() {
     }),
     cache: epicsProcessor.getCache(),
     label: 'issues',
-    load: async ({ startAt, batchSize, jira }) => {
-      return jira.listIssue({ startAt, maxResults: batchSize });
+    load: async ({ nextPageToken, batchSize, jira }) => {
+      return jira.listIssue({ nextPageToken, maxResults: batchSize });
     },
   });
 

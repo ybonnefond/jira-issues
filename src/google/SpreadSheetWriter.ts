@@ -47,23 +47,30 @@ export class SpreadSheetWriter implements Writer {
   private async clear() {
     const sheetId = await this.getSheetId();
 
-    await this.sheetsApi.spreadsheets.batchUpdate({
-      spreadsheetId: this.spreadsheetId,
-      requestBody: {
-        requests: [
-          {
-            deleteDimension: {
-              range: {
-                sheetId, // Change this if your target sheet isn't the first one
-                dimension: 'ROWS',
-                startIndex: 1, // Row 2 (0-based index); row 1 is typically headers
-                endIndex: 100000, // Or a very high number to ensure all rows are deleted
+    try {
+      await this.sheetsApi.spreadsheets.batchUpdate({
+        spreadsheetId: this.spreadsheetId,
+        requestBody: {
+          requests: [
+            {
+              deleteDimension: {
+                range: {
+                  sheetId, // Change this if your target sheet isn't the first one
+                  dimension: 'ROWS',
+                  startIndex: 1, // Row 2 (0-based index); row 1 is typically headers
+                  endIndex: 100000, // Or a very high number to ensure all rows are deleted
+                },
               },
             },
-          },
-        ],
-      },
-    });
+          ],
+        },
+      });
+    } catch (error) {
+      const isSheetAlreadyEmpty = error instanceof Error && error.message.includes("Cannot delete a row that doesn't exist");
+      if (!isSheetAlreadyEmpty) {
+        throw error;
+      }
+    }
 
     await this.sheetsApi.spreadsheets.values.clear({
       spreadsheetId: this.spreadsheetId,
