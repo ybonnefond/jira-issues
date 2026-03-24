@@ -91,10 +91,10 @@ export class Issue {
   public getStartedAt(): Date | null {
     const startedAt = this.changelogs.getStartedAt();
 
-    // Never goes to in progress, likely moved to done directly
-    // Fallback to creation date
+    // Resolved but never goes to in progress, likely moved to done directly
+    // Fallback to resolved date
     if (startedAt === null && this.props.resolvedAt !== null) {
-      return this.props.createdAt;
+      return this.props.resolvedAt;
     }
 
     return startedAt;
@@ -398,6 +398,12 @@ export class Issue {
     const days = this.getEffortDays();
     if (days === null) {
       return null;
+    }
+
+    // Likely the issue has been resolved without being switched to in progress
+    if (days === 0) {
+      // assuming the original estimation was correct and fallback to it if exists.
+      return this.props.estimation ?? 0;
     }
 
     const points = this.options.storyPoints.find(({ points, max, min }, index) => {
