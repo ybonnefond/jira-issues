@@ -26,7 +26,6 @@ export class Configuration {
   public sprints: Sprints;
   public columns: Record<Columns, ConfigColumn>;
   public headers: Columns[];
-  public supportProductDefault: string;
   public storyPoints: StoryPoint[];
 
   public readonly jira: {
@@ -38,6 +37,14 @@ export class Configuration {
     resolvedIssuesFrom: string;
     issueTypes: string;
     batchSize: number;
+    workTypes: {
+      epic: {
+        defaultVgpEpicType: string;
+      };
+      support: {
+        defaultProduct: string;
+      };
+    };
   };
 
   public readonly github: {
@@ -75,7 +82,6 @@ export class Configuration {
     this.output = output[0] === '/' ? output : join(this.root, output);
     this.columns = configJson.output.issues.columns;
     this.headers = Object.keys(this.columns) as Columns[];
-    this.supportProductDefault = configJson.jira.issues.incidents.defaultProduct;
 
     const sprintDuration = configJson.jira.sprints.duration;
     const sprintNumber = configJson.jira.sprints.initialSprint.number;
@@ -103,6 +109,14 @@ export class Configuration {
       resolvedIssuesFrom: configJson.jira.resolvedIssueFrom,
       issueTypes: configJson.jira.issueTypes.join(','),
       batchSize: 100,
+      workTypes: {
+        epic: {
+          defaultVgpEpicType: configJson.jira.issues.epics.defaultVgpEpicType,
+        },
+        support: {
+          defaultProduct: configJson.jira.issues.incidents.defaultProduct,
+        },
+      },
     };
 
     this.storyPoints = configJson.jira.storyPoints;

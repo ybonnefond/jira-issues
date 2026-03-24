@@ -65,6 +65,9 @@ export type ConfigJira = {
       // Product to fallback on incident when empty
       defaultProduct: string;
     };
+    epics: {
+      defaultVgpEpicType: string;
+    };
   };
   storyPoints: StoryPoint[];
 };

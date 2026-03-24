@@ -46,7 +46,11 @@ export class JiraIssueMapper {
       supportResolutionType: this.findSupportResolutionType(jira),
       product: this.getCustomFieldsValue({
         fields: [jira.fields[Fields.PRODUCT_07], jira.fields[Fields.PRODUCT_06], jira.fields[Fields.PRODUCT_05], jira.fields[Fields.PRODUCT_04], jira.fields[Fields.PRODUCT_03], jira.fields[Fields.PRODUCT_02], jira.fields[Fields.PRODUCT_01]],
-        fallback: this.configuration.supportProductDefault,
+        fallback: this.configuration.jira.workTypes.support.defaultProduct,
+      }),
+      epicType: this.getCustomFieldsValue({
+        fields: [jira.fields[Fields.VGP_EPIC_TYPE]],
+        fallback: this.configuration.jira.workTypes.epic.defaultVgpEpicType,
       }),
     };
 
@@ -85,8 +89,6 @@ export class JiraIssueMapper {
   }
 
   private findSupportDiscoveredBy(jira: JiraIssueDto): string | null {
-    // return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_DISCOVERED_BY]) ?? 'Development Team';
-    //
     return this.getCustomFieldsValue({
       fields: [jira.fields[Fields.SUPPORT_DISCOVERED_BY], jira.fields[Fields.SUPPORT_DISCOVERED_BY_02], jira.fields[Fields.SUPPORT_DISCOVERED_BY_03]],
       fallback: 'Development Team',
@@ -98,8 +100,6 @@ export class JiraIssueMapper {
       return 'Bug';
     }
 
-    // return this.getCustomFieldValue(jira.fields[Fields.SUPPORT_RESOLUTION_TYPE]);
-    //
     return this.getCustomFieldsValue({
       fields: [jira.fields[Fields.SUPPORT_RESOLUTION_TYPE], jira.fields[Fields.SUPPORT_RESOLUTION_TYPE_02], jira.fields[Fields.SUPPORT_RESOLUTION_TYPE_03]],
     });

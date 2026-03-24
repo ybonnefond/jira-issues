@@ -124,6 +124,7 @@ export class JiraApi {
       Fields.SUPPORT_RESOLUTION_TYPE_03,
       Fields.SUPPORT_ROOT_CAUSE,
       Fields.ESTIMATION_CONFIDENCE,
+      Fields.VGP_EPIC_TYPE,
     ];
   }
 

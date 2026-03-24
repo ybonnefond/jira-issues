@@ -56,6 +56,7 @@ export type IssueProps = {
   supportDiscoveredBy: string | null;
   supportResolutionType: string | null;
   product: string | null;
+  epicType: string | null;
 };
 
 export class Issue {
@@ -303,6 +304,7 @@ export class Issue {
       [Columns.EFFORT]: this.getEffort(),
       [Columns.ESTIMATION_CONFIDENCE]: this.props.estimationConfidence,
       [Columns.ESTIMATION_MAN_DAYS]: this.getEstimationManDays() ?? 0,
+      [Columns.EPIC_TYPE]: this.props.epicType,
     };
   }
 

@@ -33,4 +33,5 @@ export enum Fields {
   SUPPORT_RESOLUTION_TYPE_03 = 'customfield_10257',
   SUPPORT_ROOT_CAUSE = 'customfield_10035',
   ESTIMATION_CONFIDENCE = 'customfield_10458',
+  VGP_EPIC_TYPE = 'customfield_10822',
 }

@@ -1,241 +1,235 @@
 {
-  "users": [
+  users: [
     {
-      "name": "Nicolas Lantoing",
-      "githubHandle": "nlantoing",
-      "jiraHandle": "Nicolas Lantoing",
-      "seniority": "senior",
-      "role": "fullstack"
+      name: 'Nicolas Lantoing',
+      githubHandle: 'nlantoing',
+      jiraHandle: 'Nicolas Lantoing',
+      seniority: 'senior',
+      role: 'fullstack'
     },
     {
-      "name": "Thomas Buée",
-      "githubHandle": "ThomasBUEE",
-      "jiraHandle": "Thomas Buée",
-      "seniority": "senior",
-      "role": "manager"
+      name: 'Thomas Buée',
+      githubHandle: 'ThomasBUEE',
+      jiraHandle: 'Thomas Buée',
+      seniority: 'senior',
+      role: 'manager'
     },
     {
-      "name": "Thierry Jacoel",
-      "githubHandle": "thierryjacoel",
-      "jiraHandle": "Thierry Jacoel",
-      "seniority": "senior",
-      "role": "fullstack"
+      name: 'Thierry Jacoel',
+      githubHandle: 'thierryjacoel',
+      jiraHandle: 'Thierry Jacoel',
+      seniority: 'senior',
+      role: 'fullstack'
     },
     {
-      "name": "Bruno Rodrigues",
-      "githubHandle": "br-v-io",
-      "jiraHandle": "Bruno Rodrigues",
-      "seniority": "senior",
-      "role": "backend"
+      name: 'Bruno Rodrigues',
+      githubHandle: 'br-v-io',
+      jiraHandle: 'Bruno Rodrigues',
+      seniority: 'senior',
+      role: 'backend'
     },
     {
-      "name": "Jeremy Bchiri",
-      "githubHandle": "Jeremy-Bidshake",
-      "jiraHandle": "Jeremy Bchiri",
-      "seniority": "experienced",
-      "role": "fullstack"
+      name: 'Jeremy Bchiri',
+      githubHandle: 'Jeremy-Bidshake',
+      jiraHandle: 'Jeremy Bchiri',
+      seniority: 'experienced',
+      role: 'fullstack'
     },
     {
-      "name": "Ben Laor",
-      "githubHandle": "benBidShake",
-      "jiraHandle": "Ben Laor",
-      "seniority": "experienced",
-      "role": "fullstack"
+      name: 'Ben Laor',
+      githubHandle: 'benBidShake',
+      jiraHandle: 'Ben Laor',
+      seniority: 'experienced',
+      role: 'fullstack'
     },
     {
-      "name": "Malik Baba Aïssa",
-      "githubHandle": "malikba",
-      "jiraHandle": "Malik Baba Aïssa",
-      "seniority": "senior",
-      "role": "frontend"
+      name: 'Malik Baba Aïssa',
+      githubHandle: 'malikba',
+      jiraHandle: 'Malik Baba Aïssa',
+      seniority: 'senior',
+      role: 'frontend'
     },
     {
-      "name": "Yannick Bonnefond",
-      "githubHandle": "yannick-bonnefond",
-      "jiraHandle": "Yannick Bonnefond",
-      "seniority": "senior",
-      "role": "manager"
+      name: 'Yannick Bonnefond',
+      githubHandle: 'yannick-bonnefond',
+      jiraHandle: 'Yannick Bonnefond',
+      seniority: 'senior',
+      role: 'manager'
     },
     {
-      "name": "Thomas Nusbaum",
-      "githubHandle": "thomasnusbaum",
-      "jiraHandle": "Thomas Nusbaum",
-      "seniority": "senior",
-      "role": "backend"
+      name: 'Thomas Nusbaum',
+      githubHandle: 'thomasnusbaum',
+      jiraHandle: 'Thomas Nusbaum',
+      seniority: 'senior',
+      role: 'backend'
     },
     {
-      "name": "Nathan Quentel",
-      "githubHandle": "nathanqtlv",
-      "jiraHandle": "Nathan Quentel",
-      "seniority": "experienced",
-      "role": "fullstack"
+      name: 'Nathan Quentel',
+      githubHandle: 'nathanqtlv',
+      jiraHandle: 'Nathan Quentel',
+      seniority: 'senior',
+      role: 'fullstack'
     },
     {
-      "name": "Julien Vallé",
-      "githubHandle": "valle-julien",
-      "jiraHandle": "Julien Vallé",
-      "seniority": "senior",
-      "role": "fullstack"
+      name: 'Julien Vallé',
+      githubHandle: 'valle-julien',
+      jiraHandle: 'Julien Vallé',
+      seniority: 'senior',
+      role: 'fullstack'
     },
     {
-      "name": "Arthur Guérin",
-      "githubHandle": "AGU-V",
-      "jiraHandle": "Arthur Guérin",
-      "seniority": "senior",
-      "role": "lead"
+      name: 'Arthur Guérin',
+      githubHandle: 'AGU-V',
+      jiraHandle: 'Arthur Guérin',
+      seniority: 'senior',
+      role: 'lead'
     },
     {
-      "name": "Franck Gautier",
-      "githubHandle": "fg-voodoo",
-      "jiraHandle": "Franck Gautier",
-      "seniority": "senior",
-      "role": "fullstack"
+      name: 'Franck Gautier',
+      githubHandle: 'fg-voodoo',
+      jiraHandle: 'Franck Gautier',
+      seniority: 'senior',
+      role: 'fullstack'
     }
   ],
-  "output": {
-    "issues": {
+  output: {
+    issues: {
       // ⚠️ CHANGING THIS ORDER WILL BREAK THE GOOGLE SHEETS ⚠️
-      "columns": {
-        "ID":  { format: { type: 'INTEGER' } },
-        "TYPE":  { format: { type: 'TEXT' } },
-        "PROJECT_KEY":  { format: { type: 'TEXT' } },
-        "PROJECT_NAME":  { format: { type: 'TEXT' } },
-        "KEY":  { format: { type: 'TEXT' } },
-        "STATUS":  { format: { type: 'TEXT' } },
-        "SUMMARY":  { format: { type: 'TEXT' } },
-        "ESTIMATION":  {format: { type: 'INTEGER' }},
-        "TIME_SPENT":  { format: { type: 'INTEGER' } },
-        "REPORTER":  { format: { type: 'TEXT' } },
-        "ASSIGNEE":  { format: { type: 'TEXT' } },
-        "PRIORITY":  { format: { type: 'TEXT' } },
-        "EPIC_KEY":  { format: { type: 'TEXT' } },
-        "EPIC_SUMMARY":  { format: { type: 'TEXT' } },
-        "EPIC_LABEL":  { format: { type: 'TEXT' } },
-        "LINK":  { format: { type: 'TEXT' } },
-        "SUPPORT_DISCOVERED_BY":  { format: { type: 'TEXT' } },
-        "SUPPORT_RESOLUTION_TYPE":  { format: { type: 'TEXT' } },
-        "SUPPORT_PRODUCT":  { format: { type: 'TEXT' } },
-        "IS_STARTED":  { format: { type: 'TEXT' } },
-        "IS_DELIVERED":  { format: { type: 'TEXT' } },
-        "IS_IN_PROGRESS":  { format: { type: 'TEXT' } },
-        "CREATED_AT":  { format:  { type: 'DATE' } },
-        "CREATED_SPRINT":  { format: { type: 'TEXT' } },
-        "CREATED_WEEK":  { format: { type: 'TEXT' } },
-        "CREATED_MONTH":  { format: { type: 'TEXT' } },
-        "CREATED_QUARTER":  { format: { type: 'TEXT' } },
-        "STARTED_AT":  { format:  { type: 'DATE' } },
-        "STARTED_SPRINT":  { format: { type: 'TEXT' } },
-        "STARTED_WEEK":  { format: { type: 'TEXT' } },
-        "STARTED_MONTH":  { format: { type: 'TEXT' } },
-        "STARTED_QUARTER":  { format: { type: 'TEXT' } },
-        "RESOLVED_AT":  { format:  { type: 'DATE' } },
-        "RESOLVED_SPRINT":  { format: { type: 'TEXT' } },
-        "RESOLVED_WEEK":  { format: { type: 'TEXT' } },
-        "RESOLVED_MONTH":  { format: { type: 'TEXT' } },
-        "RESOLVED_QUARTER":  { format: { type: 'TEXT' } },
-        "LEAD_TIME_SECONDS":  {format: { type: 'INTEGER' }},
-        "LEAD_TIME_HOURS":  {format: { type: 'FLOAT' }},
-        "LEAD_TIME_DAYS":  {format: { type: 'INTEGER' }},
-        "LEAD_TIME_BUSINESS_SECONDS":  {format: { type: 'INTEGER' }},
-        "LEAD_TIME_BUSINESS_HOURS":  {format: { type: 'FLOAT' }},
-        "LEAD_TIME_BUSINESS_DAYS":  {format: { type: 'INTEGER' }},
-        "EPIC_STATUS":  { format: { type: 'TEXT' } },
-        "EPIC_LINK":  { format: { type: 'TEXT' } },
-        "LEAD_TIME_DAYS_BUCKET":  {format: { type: 'TEXT' }},
-        "LEAD_TIME_BUSINESS_DAYS_BUCKET":  { format:  { type: 'TEXT'}},
-        "TYPE_NORMALIZED":  { format: { type: 'TEXT' } },
-        "STATUS_DURATION_DAYS_TODO":  { format: { type: 'INTEGER' } },
-        "STATUS_BUSINESS_DURATION_DAYS_TODO":  {format: { type: 'INTEGER' }},
-        "STATUS_DURATION_DAYS_HOLD":  {format: { type: 'INTEGER' }},
-        "STATUS_BUSINESS_DURATION_DAYS_HOLD":  {format: { type: 'INTEGER' }},
-        "STATUS_DURATION_DAYS_IN_PROGRESS":  {format: { type: 'INTEGER' }},
-        "STATUS_BUSINESS_DURATION_DAYS_IN_PROGRESS":  {format: { type: 'INTEGER' }},
-        "STATUS_DURATION_DAYS_QA":  {format: { type: 'INTEGER' }},
-        "STATUS_BUSINESS_DURATION_DAYS_QA":  {format: { type: 'INTEGER' }},
-        "ASSIGNEE_SENIORITY":  { format: { type: 'TEXT' } },
-        "ASSIGNEE_ROLE":  { format: { type: 'TEXT' } },
-        "TIME_SPENT_HOURS":  {format: { type: 'FLOAT' }},
-        "TIME_SPENT_DAYS":  {format: { type: 'INTEGER' }},
-        "CREATED_SEMESTER":  { format: { type: 'TEXT' } },
-        "STARTED_SEMESTER":  { format: { type: 'TEXT' } },
-        "RESOLVED_SEMESTER":  { format: { type: 'TEXT' } },
-        "PRODUCT_PRIORITY":  {format: { type: 'INTEGER' }},
-        "EFFORT_DAYS":  {format: { type: 'INTEGER' }},
-        "EFFORT":  {format: { type: 'INTEGER' }},
-        "ESTIMATION_CONFIDENCE":  {format: { type: 'INTEGER' }},
-        "ESTIMATION_MAN_DAYS":  {format: { type: 'FLOAT' }},
+      columns: {
+        ID:  { format: { type: 'INTEGER' } },
+        TYPE:  { format: { type: 'TEXT' } },
+        PROJECT_KEY:  { format: { type: 'TEXT' } },
+        PROJECT_NAME:  { format: { type: 'TEXT' } },
+        KEY:  { format: { type: 'TEXT' } },
+        STATUS:  { format: { type: 'TEXT' } },
+        SUMMARY:  { format: { type: 'TEXT' } },
+        ESTIMATION:  {format: { type: 'INTEGER' }},
+        TIME_SPENT:  { format: { type: 'INTEGER' } },
+        REPORTER:  { format: { type: 'TEXT' } },
+        ASSIGNEE:  { format: { type: 'TEXT' } },
+        PRIORITY:  { format: { type: 'TEXT' } },
+        EPIC_KEY:  { format: { type: 'TEXT' } },
+        EPIC_SUMMARY:  { format: { type: 'TEXT' } },
+        EPIC_LABEL:  { format: { type: 'TEXT' } },
+        LINK:  { format: { type: 'TEXT' } },
+        SUPPORT_DISCOVERED_BY:  { format: { type: 'TEXT' } },
+        SUPPORT_RESOLUTION_TYPE:  { format: { type: 'TEXT' } },
+        SUPPORT_PRODUCT:  { format: { type: 'TEXT' } },
+        IS_STARTED:  { format: { type: 'TEXT' } },
+        IS_DELIVERED:  { format: { type: 'TEXT' } },
+        IS_IN_PROGRESS:  { format: { type: 'TEXT' } },
+        CREATED_AT:  { format:  { type: 'DATE' } },
+        CREATED_SPRINT:  { format: { type: 'TEXT' } },
+        CREATED_WEEK:  { format: { type: 'TEXT' } },
+        CREATED_MONTH:  { format: { type: 'TEXT' } },
+        CREATED_QUARTER:  { format: { type: 'TEXT' } },
+        STARTED_AT:  { format:  { type: 'DATE' } },
+        STARTED_SPRINT:  { format: { type: 'TEXT' } },
+        STARTED_WEEK:  { format: { type: 'TEXT' } },
+        STARTED_MONTH:  { format: { type: 'TEXT' } },
+        STARTED_QUARTER:  { format: { type: 'TEXT' } },
+        RESOLVED_AT:  { format:  { type: 'DATE' } },
+        RESOLVED_SPRINT:  { format: { type: 'TEXT' } },
+        RESOLVED_WEEK:  { format: { type: 'TEXT' } },
+        RESOLVED_MONTH:  { format: { type: 'TEXT' } },
+        RESOLVED_QUARTER:  { format: { type: 'TEXT' } },
+        LEAD_TIME_SECONDS:  {format: { type: 'INTEGER' }},
+        LEAD_TIME_HOURS:  {format: { type: 'FLOAT' }},
+        LEAD_TIME_DAYS:  {format: { type: 'INTEGER' }},
+        LEAD_TIME_BUSINESS_SECONDS:  {format: { type: 'INTEGER' }},
+        LEAD_TIME_BUSINESS_HOURS:  {format: { type: 'FLOAT' }},
+        LEAD_TIME_BUSINESS_DAYS:  {format: { type: 'INTEGER' }},
+        EPIC_STATUS:  { format: { type: 'TEXT' } },
+        EPIC_LINK:  { format: { type: 'TEXT' } },
+        LEAD_TIME_DAYS_BUCKET:  {format: { type: 'TEXT' }},
+        LEAD_TIME_BUSINESS_DAYS_BUCKET:  { format:  { type: 'TEXT'}},
+        TYPE_NORMALIZED:  { format: { type: 'TEXT' } },
+        STATUS_DURATION_DAYS_TODO:  { format: { type: 'INTEGER' } },
+        STATUS_BUSINESS_DURATION_DAYS_TODO:  {format: { type: 'INTEGER' }},
+        STATUS_DURATION_DAYS_HOLD:  {format: { type: 'INTEGER' }},
+        STATUS_BUSINESS_DURATION_DAYS_HOLD:  {format: { type: 'INTEGER' }},
+        STATUS_DURATION_DAYS_IN_PROGRESS:  {format: { type: 'INTEGER' }},
+        STATUS_BUSINESS_DURATION_DAYS_IN_PROGRESS:  {format: { type: 'INTEGER' }},
+        STATUS_DURATION_DAYS_QA:  {format: { type: 'INTEGER' }},
+        STATUS_BUSINESS_DURATION_DAYS_QA:  {format: { type: 'INTEGER' }},
+        ASSIGNEE_SENIORITY:  { format: { type: 'TEXT' } },
+        ASSIGNEE_ROLE:  { format: { type: 'TEXT' } },
+        TIME_SPENT_HOURS:  {format: { type: 'FLOAT' }},
+        TIME_SPENT_DAYS:  {format: { type: 'INTEGER' }},
+        CREATED_SEMESTER:  { format: { type: 'TEXT' } },
+        STARTED_SEMESTER:  { format: { type: 'TEXT' } },
+        RESOLVED_SEMESTER:  { format: { type: 'TEXT' } },
+        PRODUCT_PRIORITY:  {format: { type: 'INTEGER' }},
+        EFFORT_DAYS:  {format: { type: 'INTEGER' }},
+        EFFORT:  {format: { type: 'INTEGER' }},
+        ESTIMATION_CONFIDENCE:  {format: { type: 'INTEGER' }},
+        ESTIMATION_MAN_DAYS:  {format: { type: 'FLOAT' }},
+        EPIC_TYPE:  { format: { type: 'TEXT' } }
       }
     }
   },
-  "jira":{
-    resolvedIssueFrom:"2023-04-13",
-    issueTypes: ["Bug","Spike","Story","Support","Task","Tech","Maturation","Study","Incident","subTaskIssueTypes()"],
+  jira: {
+    resolvedIssueFrom: '2025-01-01',
+    issueTypes: ['Bug', 'Spike', 'Story', 'Support', 'Task', 'Tech', 'Maturation', 'Study', 'Incident', 'subTaskIssueTypes()'],
     projects: [
       {
-        key: "VGP",
-        boardId: 175,
-      },
-      {
-        key: "VGPA",
-        boardId: 177,
-      },
-      {
-        key: "VGPB",
-        boardId: 181,
+        key: 'VGP',
+        boardId: 175
       }
     ],
     issues: {
-      deliveredStatuses: ['Done','Deployed'],
+      deliveredStatuses: ['Done', 'Deployed'],
       statusMapping: {
-        TODO: ["DRAFT","TODO"],
-        IN_PROGRESS: ["INPROGRESS"],
-        QA: ["QA","VALIDATED"],
-        HOLD: ["HOLD"],
-        DONE: ["DONE","ABANDONED","DROPPED"],
+        TODO: ['DRAFT', 'TODO'],
+        IN_PROGRESS: ['INPROGRESS'],
+        QA: ['QA', 'VALIDATED'],
+        HOLD: ['HOLD'],
+        DONE: ['DONE', 'ABANDONED', 'DROPPED']
       },
       typeMapping: {
-        Support: ["Support", "Incident"],
-        Maturation: ["Maturation", "Study", "Spike"],
-        Tech: ["Tech", "Task"]
+        Support: ['Support', 'Incident'],
+        Maturation: ['Maturation', 'Study', 'Spike'],
+        Tech: ['Tech', 'Task']
       },
       incidents: {
-        defaultProduct: "VGP",
+        defaultProduct: 'VGP'
+      },
+      epics:{
+        defaultVgpEpicType: 'Feature'
       }
     },
     sprints: {
-      // Duration in days
       duration: 14,
       initialSprint: {
-        startDate: '2024-09-12',
-        number: 38,
+        startDate: '2025-01-01',
+        number: 46
       }
     },
     storyPoints: [
-      { points: 1, min:	1, max:	2 },
-      { points: 2, min:	2, max:	3 },
-      { points: 3, min:	3, max:	4 },
-      { points: 5, min:	4, max:	7 },
-      { points: 8, min:	7, max:	10 },
-      { points: 13, min:	10, max:	20 },
-      { points: 21, min:	20, max:	30 },
-      { points: 34, min:	30, max:	45 },
-      { points: 55, min:	45, max:	70 },
-      { points: 89, min:	70, max:	110 }
+      { points: 1, min: 1, max: 2 },
+      { points: 2, min: 2, max: 3 },
+      { points: 3, min: 3, max: 4 },
+      { points: 5, min: 4, max: 7 },
+      { points: 8, min: 7, max: 10 },
+      { points: 13, min: 10, max: 20 },
+      { points: 21, min: 20, max: 30 },
+      { points: 34, min: 30, max: 45 },
+      { points: 55, min: 45, max: 70 },
+      { points: 89, min: 70, max: 110 }
     ]
   },
   github: {
-    organization: "VoodooTeam",
-    repositories: ["vgp-campaign-service","vgp-asset-service","vgp-asset-workers","vgp-bridges","vgp-main-ui", "vgp-playable-service"],
+    organization: 'VoodooTeam',
+    repositories: ['vgp-campaign-service', 'vgp-asset-service', 'vgp-asset-workers', 'vgp-bridges', 'vgp-main-ui', 'vgp-playable-service'],
     pullRequests: {
-      closedFrom: "2024-01-01",
+      closedFrom: '2025-01-01'
     }
   },
   google: {
     spreadsheet: {
-      id: "1NSwbxjo7rhirwbWRrlXgv4AG8S4g6mU__239aio37k4",
-      epicSheet: "epics",
-      issuesSheet: "issues",
-    },
-
+      id: '1NSwbxjo7rhirwbWRrlXgv4AG8S4g6mU__239aio37k4',
+      epicSheet: 'epics',
+      issuesSheet: 'issues'
+    }
   }
 }
