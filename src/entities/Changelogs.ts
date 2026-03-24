@@ -120,7 +120,7 @@ export class Changelogs {
       const from = changelog.getFromStringNormalized();
       const to = changelog.getToStringNormalized();
 
-      const fromStatuses = [...this.statusMap[Statuses.TODO], ...this.statusMap[Statuses.HOLD]];
+      const fromStatuses = [...this.statusMap[Statuses.TODO]];
 
       const isChangingToInProgress = to === Statuses.IN_PROGRESS && fromStatuses.includes((from ?? '') as Statuses);
       if (!isChangingToInProgress) {

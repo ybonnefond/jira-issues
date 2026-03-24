@@ -378,9 +378,16 @@ export class Issue {
   }
 
   private getEffortDays() {
-    const days = TimeUtil.toDurationInBusinessDays(this.getStartedAt(), this.props.resolvedAt);
+    let days = TimeUtil.toDurationInBusinessDays(this.getStartedAt(), this.props.resolvedAt);
     if (days === null) {
       return null;
+    }
+
+    const hold = this.changelogs.getDurations()[Statuses.HOLD];
+    const holdDays = TimeUtil.toDurationInRoundedDaysBusinessHours(hold.businessMilliseconds);
+
+    if (holdDays !== null) {
+      days = Math.max(0, days - holdDays);
     }
 
     // TODO move buffer factor to config
