@@ -403,7 +403,7 @@ export class Issue {
     // Likely the issue has been resolved without being switched to in progress
     if (days === 0) {
       // assuming the original estimation was correct and fallback to it if exists.
-      return this.props.estimation ?? 0;
+      return this.props.estimation ?? 0; // Fallback to 0: story mark as done (0 days) but no estimation, no work time... likely a duplicate not deleted and just marked as DONE
     }
 
     const points = this.options.storyPoints.find(({ points, max, min }, index) => {
