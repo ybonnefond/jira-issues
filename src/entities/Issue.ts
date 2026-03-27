@@ -104,6 +104,20 @@ export class Issue {
     return this.props.epic?.key ?? null;
   }
 
+  private getAdjustedLeadTimeMs(): number | null {
+    const ms = this.getLeadTimeMs();
+    if (ms === null) return null;
+    const holdMs = this.changelogs.getDurations()[Statuses.HOLD].milliseconds;
+    return Math.max(0, ms - holdMs);
+  }
+
+  private getAdjustedLeadTimeBusinessMs(): number | null {
+    const ms = this.getLeadTimeBusinessMs();
+    if (ms === null) return null;
+    const holdMs = this.changelogs.getDurations()[Statuses.HOLD].businessMilliseconds;
+    return Math.max(0, ms - holdMs);
+  }
+
   private getLeadTimeMs(): number | null {
     let start = this.getStartedAt();
 
@@ -216,11 +230,11 @@ export class Issue {
     const startedAtSprint = this.options.sprints.findSprint(startedAt);
     const resolvedAtSprint = this.options.sprints.findSprint(resolvedAt);
 
-    const leadTimeMs = this.getLeadTimeMs();
-    const leadTimeBusinessMs = this.getLeadTimeBusinessMs();
+    const leadTimeMs = this.getAdjustedLeadTimeMs();
+    const leadTimeBusinessMs = this.getAdjustedLeadTimeBusinessMs();
 
     const leadTimeDays = TimeUtil.toDurationInRoundedDays24h(leadTimeMs);
-    const leadTimeBusinessDays = TimeUtil.toDurationInRoundedDaysBusinessHours(leadTimeBusinessMs);
+    const leadTimeBusinessDays = TimeUtil.toDurationInRoundedDaysBusinessHours(this.getAdjustedLeadTimeBusinessMs());
 
     const durationsByStatus = this.changelogs.getDurations();
 
