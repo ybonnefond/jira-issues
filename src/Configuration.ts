@@ -138,6 +138,7 @@ export class Configuration {
       [Statuses.IN_PROGRESS]: configJson.jira.issues.statusMapping.IN_PROGRESS,
       [Statuses.HOLD]: configJson.jira.issues.statusMapping.HOLD,
       [Statuses.QA]: configJson.jira.issues.statusMapping.QA,
+      [Statuses.VALIDATED]: configJson.jira.issues.statusMapping.VALIDATED,
       [Statuses.DONE]: configJson.jira.issues.statusMapping.DONE,
     };
 

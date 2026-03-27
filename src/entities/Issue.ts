@@ -70,6 +70,7 @@ export class Issue {
         [Statuses.IN_PROGRESS]: [],
         [Statuses.HOLD]: [],
         [Statuses.QA]: [],
+        [Statuses.VALIDATED]: [],
         [Statuses.DONE]: [],
       },
       createdAt: this.props.createdAt,
@@ -107,15 +108,17 @@ export class Issue {
   private getAdjustedLeadTimeMs(): number | null {
     const ms = this.getLeadTimeMs();
     if (ms === null) return null;
-    const holdMs = this.changelogs.getDurations()[Statuses.HOLD].milliseconds;
-    return Math.max(0, ms - holdMs);
+    const durations = this.changelogs.getDurations();
+    const deductMs = durations[Statuses.HOLD].milliseconds + durations[Statuses.VALIDATED].milliseconds;
+    return Math.max(0, ms - deductMs);
   }
 
   private getAdjustedLeadTimeBusinessMs(): number | null {
     const ms = this.getLeadTimeBusinessMs();
     if (ms === null) return null;
-    const holdMs = this.changelogs.getDurations()[Statuses.HOLD].businessMilliseconds;
-    return Math.max(0, ms - holdMs);
+    const durations = this.changelogs.getDurations();
+    const deductMs = durations[Statuses.HOLD].businessMilliseconds + durations[Statuses.VALIDATED].businessMilliseconds;
+    return Math.max(0, ms - deductMs);
   }
 
   private getLeadTimeMs(): number | null {
@@ -319,6 +322,8 @@ export class Issue {
       [Columns.ESTIMATION_CONFIDENCE]: this.props.estimationConfidence,
       [Columns.ESTIMATION_MAN_DAYS]: this.getEstimationManDays() ?? 0,
       [Columns.EPIC_TYPE]: this.props.epicType,
+      [Columns.STATUS_DURATION_DAYS_VALIDATED]: TimeUtil.toDurationInRoundedDays24h(durationsByStatus[Statuses.VALIDATED].milliseconds),
+      [Columns.STATUS_BUSINESS_DURATION_DAYS_VALIDATED]: TimeUtil.toDurationInRoundedDaysBusinessHours(durationsByStatus[Statuses.VALIDATED].businessMilliseconds),
     };
   }
 
@@ -397,11 +402,12 @@ export class Issue {
       return null;
     }
 
-    const hold = this.changelogs.getDurations()[Statuses.HOLD];
-    const holdDays = TimeUtil.toDurationInRoundedDaysBusinessHours(hold.businessMilliseconds);
+    const durations = this.changelogs.getDurations();
+    const deductMs = durations[Statuses.HOLD].businessMilliseconds + durations[Statuses.VALIDATED].businessMilliseconds;
+    const deductDays = TimeUtil.toDurationInRoundedDaysBusinessHours(deductMs);
 
-    if (holdDays !== null) {
-      days = Math.max(0, days - holdDays);
+    if (deductDays !== null) {
+      days = Math.max(0, days - deductDays);
     }
 
     // TODO move buffer factor to config

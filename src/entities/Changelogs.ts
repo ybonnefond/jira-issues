@@ -8,6 +8,7 @@ export type StatusDurations = {
   [Statuses.IN_PROGRESS]: { milliseconds: number; businessMilliseconds: number };
   [Statuses.HOLD]: { milliseconds: number; businessMilliseconds: number };
   [Statuses.QA]: { milliseconds: number; businessMilliseconds: number };
+  [Statuses.VALIDATED]: { milliseconds: number; businessMilliseconds: number };
 };
 
 export class Changelogs {
@@ -40,6 +41,7 @@ export class Changelogs {
       [Statuses.IN_PROGRESS]: { milliseconds: 0, businessMilliseconds: 0 },
       [Statuses.HOLD]: { milliseconds: 0, businessMilliseconds: 0 },
       [Statuses.QA]: { milliseconds: 0, businessMilliseconds: 0 },
+      [Statuses.VALIDATED]: { milliseconds: 0, businessMilliseconds: 0 },
       [Statuses.DONE]: { milliseconds: 0, businessMilliseconds: 0 },
     };
 

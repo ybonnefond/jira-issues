@@ -6,5 +6,6 @@ export enum Statuses {
   IN_PROGRESS = 'INPROGRESS',
   HOLD = 'HOLD',
   QA = 'QA',
+  VALIDATED = 'VALIDATED',
   DONE = 'DONE',
 }

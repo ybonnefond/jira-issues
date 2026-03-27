@@ -55,6 +55,7 @@ export type ConfigJira = {
       IN_PROGRESS: string[];
       QA: string[];
       HOLD: string[];
+      VALIDATED: string[];
       DONE: string[];
     };
     //Issue type Mapping

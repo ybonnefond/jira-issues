@@ -182,7 +182,8 @@
       statusMapping: {
         TODO: ['DRAFT', 'TODO'],
         IN_PROGRESS: ['INPROGRESS'],
-        QA: ['QA', 'VALIDATED'],
+        QA: ['QA'],
+        VALIDATED: ['VALIDATED'],
         HOLD: ['HOLD'],
         DONE: ['DONE', 'ABANDONED', 'DROPPED']
       },
